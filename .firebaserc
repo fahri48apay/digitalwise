@@ -1,0 +1,15 @@
+{
+  "projects": {
+    "default": "digitalwise-demo",
+    "prod": "digitalwise-prod"
+  },
+  "targets": {
+    "digitalwise-demo": {
+      "hosting": {
+        "admin": [
+          "admin"
+        ]
+      }
+    }
+  }
+}

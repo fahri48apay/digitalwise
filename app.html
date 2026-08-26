@@ -1,0 +1,1782 @@
+<!DOCTYPE html>
+<html lang="id" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>DigitalWise — Konsep UI Aplikasi Android</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Rounded:opsz,wght,FILL,GRAD@20..48,300..700,0..1,0&display=block" rel="stylesheet">
+<link rel="stylesheet" href="tokens.css">
+<style>
+  /* ============ HALAMAN PRESENTASI (bukan bagian app) ============ */
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body {
+    font-family: var(--font-family);
+    background: #0f0f14;
+    color: #e8e6ef;
+    padding: 48px 24px 80px;
+  }
+  .page-header { max-width: 1280px; margin: 0 auto 40px; }
+  .page-header .kicker {
+    font: var(--font-label-md); letter-spacing: 0.12em; text-transform: uppercase;
+    color: #9d9db3; margin-bottom: 8px;
+  }
+  .page-header h1 { font: 800 clamp(28px, 4vw, 40px)/1.15 var(--font-family); }
+  .page-header h1 span { color: #bdc3ff; }
+  .page-header .sub { font: var(--font-body-lg); color: #b6b4c4; margin-top: 10px; max-width: 640px; }
+  .meta-chips { display: flex; flex-wrap: wrap; gap: 8px; margin-top: 18px; align-items: center; }
+  .meta-chip {
+    font: var(--font-label-md); color: #cdcbe0;
+    border: 1px solid #34343f; border-radius: var(--radius-full); padding: 6px 14px;
+    background: #17171e;
+  }
+  .theme-toggle {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 8px;
+    font: var(--font-label-lg); color: #0f0f14; background: #e8e6ef;
+    border: none; border-radius: var(--radius-full); padding: 10px 18px; cursor: pointer;
+    min-height: 44px;
+  }
+  .theme-toggle:hover { background: #ffffff; }
+  .theme-toggle .msr { font-size: 20px; }
+
+  .screens {
+    max-width: 1280px; margin: 0 auto; display: flex; flex-wrap: wrap;
+    gap: 40px 28px; justify-content: center; align-items: flex-start;
+  }
+  .screen-block { display: flex; flex-direction: column; gap: 14px; }
+  .screen-caption { max-width: 384px; }
+  .screen-caption .num {
+    font: var(--font-label-md); color: #8f8fa8; letter-spacing: 0.1em;
+  }
+  .screen-caption h2 { font: var(--font-title-lg); color: #f0eff6; margin: 2px 0 4px; }
+  .screen-caption p { font: var(--font-body-md); color: #a3a1b5; line-height: 1.5; }
+
+  .notes {
+    max-width: 1280px; margin: 72px auto 0; display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px;
+  }
+  .note-card { background: #17171e; border: 1px solid #2a2a35; border-radius: var(--radius-md); padding: 22px; }
+  .note-card h3 { font: var(--font-title-md); color: #f0eff6; margin-bottom: 10px; display: flex; align-items: center; gap: 8px; }
+  .note-card h3 .msr { color: #bdc3ff; font-size: 20px; }
+  .note-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .note-card li { font: var(--font-body-md); color: #b6b4c4; line-height: 1.5; padding-left: 18px; position: relative; }
+  .note-card li::before { content: ""; position: absolute; left: 0; top: 8px; width: 7px; height: 7px; border-radius: 50%; background: #bdc3ff; }
+
+  /* ============ BINGKAI HP ============ */
+  .phone {
+    width: 384px; height: 820px; background: #060609; border-radius: 46px; padding: 10px;
+    box-shadow: 0 24px 60px rgba(0,0,0,0.55), 0 0 0 1px #2a2a35;
+    flex-shrink: 0;
+  }
+  .phone-screen {
+    width: 100%; height: 100%; border-radius: 36px; overflow: hidden;
+    background: var(--color-surface); display: flex; flex-direction: column; position: relative;
+    color: var(--color-on-surface);
+  }
+  .status-bar {
+    height: 34px; flex-shrink: 0; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 22px; font: 600 12px/1 var(--font-family);
+  }
+  .status-icons { display: flex; gap: 5px; align-items: center; }
+  .status-icons .msr { font-size: 14px; }
+  .app-body { flex: 1; overflow-y: auto; overscroll-behavior: contain; scrollbar-width: none; }
+  .app-body::-webkit-scrollbar { display: none; }
+  .screen-content { padding: 4px 20px 20px; display: flex; flex-direction: column; gap: 20px; }
+
+  /* ============ KOMPONEN APP (Material 3) ============ */
+  .msr {
+    font-family: 'Material Symbols Rounded';
+    font-weight: normal; font-style: normal; line-height: 1;
+    letter-spacing: normal; text-transform: none; display: inline-block;
+    white-space: nowrap; word-wrap: normal; direction: ltr;
+    font-variation-settings: 'FILL' 0, 'wght' 500, 'GRAD' 0, 'opsz' 24;
+    -webkit-font-smoothing: antialiased; user-select: none;
+  }
+  .msr.filled { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+
+  /* Tombol — min 48dp, pill, satu primary per layar */
+  .btn {
+    display: inline-flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: var(--touch-target); padding: 0 24px; border: none; cursor: pointer;
+    border-radius: var(--radius-full); font: var(--font-label-lg); width: 100%;
+    transition: box-shadow var(--motion-short), background var(--motion-short), transform var(--motion-short);
+    position: relative;
+  }
+  .btn:active { transform: scale(0.98); }
+  .btn:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+  .btn-filled { background: var(--color-primary); color: var(--color-on-primary); }
+  .btn-filled:hover { box-shadow: var(--elevation-1); }
+  .btn-outlined { background: transparent; color: var(--color-primary); border: 1.5px solid var(--color-outline); }
+  .btn-outlined:hover { background: var(--state-hover); }
+  .btn-text { background: transparent; color: var(--color-primary); padding: 0 12px; }
+  .btn-text:hover { background: var(--state-hover); }
+  .btn-success { background: var(--color-success); color: var(--color-on-success); }
+  .btn-error { background: var(--color-error); color: var(--color-on-error); }
+  .btn:disabled { opacity: 0.38; cursor: default; }
+
+  /* Top app bar */
+  .top-bar {
+    height: 56px; flex-shrink: 0; display: flex; align-items: center; gap: 8px; padding: 0 12px;
+  }
+  .top-bar .title { font: var(--font-title-md); flex: 1; }
+  .icon-btn {
+    width: var(--touch-target); height: var(--touch-target); border-radius: 50%;
+    display: inline-flex; align-items: center; justify-content: center; border: none;
+    background: transparent; color: var(--color-on-surface-variant); cursor: pointer; position: relative;
+  }
+  .icon-btn:hover { background: var(--state-hover); }
+  .icon-btn:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+  .icon-btn .dot {
+    position: absolute; top: 11px; right: 11px; width: 9px; height: 9px;
+    background: var(--color-error); border-radius: 50%; border: 2px solid var(--color-surface);
+  }
+
+  /* Kartu */
+  .card {
+    background: var(--color-surface-container-low); border-radius: var(--radius-md); padding: 16px;
+  }
+  .card-title { font: var(--font-title-md); }
+  .section-header { display: flex; align-items: center; justify-content: space-between; }
+  .section-header h3 { font: var(--font-title-lg); }
+  .link-label {
+    font: var(--font-label-lg); color: var(--color-primary); background: none; border: none;
+    cursor: pointer; display: inline-flex; align-items: center; border-radius: 8px; padding: 4px 6px;
+    min-height: 44px;
+  }
+  .link-label:hover { background: var(--state-hover); }
+  .link-label:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
+  /* Chip */
+  .chip {
+    display: inline-flex; align-items: center; gap: 6px; border-radius: var(--radius-full);
+    font: var(--font-label-md); padding: 7px 13px; border: 1px solid var(--color-outline-variant);
+    color: var(--color-on-surface-variant); background: transparent; cursor: pointer;
+    min-height: 36px; transition: background var(--motion-short);
+  }
+  .chip:hover { background: var(--state-hover); }
+  .chip:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+  .chip.selected { background: var(--color-secondary-container); color: var(--color-on-secondary-container); border-color: transparent; }
+  .chip .msr { font-size: 17px; }
+
+  /* Avatar */
+  .avatar {
+    width: 44px; height: 44px; border-radius: 50%; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    font: 700 16px/1 var(--font-family);
+    background: var(--color-primary-container); color: var(--color-on-primary-container);
+  }
+  .avatar.lg { width: 72px; height: 72px; font-size: 26px; }
+
+  /* Progress bar */
+  .progress { height: 8px; background: var(--color-surface-container-highest); border-radius: var(--radius-full); overflow: hidden; }
+  .progress > span { display: block; height: 100%; background: var(--color-primary); border-radius: var(--radius-full); width: 0; transition: width var(--motion-long); }
+  .progress.success > span { background: var(--color-success); }
+  .progress.tertiary > span { background: var(--color-tertiary); }
+  .progress.warning > span { background: var(--color-warning); }
+
+  /* Bottom navigation — 4 tujuan + label, indikator pill M3 */
+  .bottom-nav {
+    flex-shrink: 0; height: var(--nav-height); background: var(--color-surface-container);
+    display: flex; align-items: center; justify-content: space-around; padding: 0 8px;
+    border-top: 1px solid var(--color-outline-variant);
+  }
+  .nav-item {
+    display: flex; flex-direction: column; align-items: center; gap: 3px; border: none;
+    background: none; cursor: pointer; color: var(--color-on-surface-variant);
+    font: var(--font-label-md); min-width: 64px; min-height: var(--touch-target);
+    justify-content: center; border-radius: var(--radius-sm);
+  }
+  .nav-item .nav-pill {
+    width: 56px; height: 30px; border-radius: var(--radius-full);
+    display: flex; align-items: center; justify-content: center;
+    transition: background var(--motion-short);
+  }
+  .nav-item[aria-current="page"] { color: var(--color-on-surface); font-weight: 700; }
+  .nav-item[aria-current="page"] .nav-pill { background: var(--color-secondary-container); color: var(--color-on-secondary-container); }
+  .nav-item[aria-current="page"] .msr { font-variation-settings: 'FILL' 1, 'wght' 500, 'GRAD' 0, 'opsz' 24; }
+  .nav-item:focus-visible { outline: 3px solid var(--color-primary); outline-offset: -2px; }
+
+  /* Baris daftar */
+  .list-item {
+    display: flex; align-items: center; gap: 14px; padding: 12px; border-radius: var(--radius-sm);
+    background: transparent; border: none; width: 100%; text-align: left; cursor: pointer;
+    font-family: inherit; color: inherit; min-height: 64px;
+  }
+  .list-item:hover { background: var(--state-hover); }
+  .list-item:focus-visible { outline: 3px solid var(--color-primary); outline-offset: -2px; }
+  .list-item .grow { flex: 1; min-width: 0; }
+  .list-item .t1 { font: var(--font-title-md); }
+  .list-item .t2 { font: var(--font-body-md); color: var(--color-on-surface-variant); margin-top: 1px; }
+
+  .icon-box {
+    width: 44px; height: 44px; border-radius: var(--radius-sm); flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .icon-box .msr { font-size: 23px; }
+  .ib-primary { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+  .ib-tertiary { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
+  .ib-success { background: var(--color-success-container); color: var(--color-on-success-container); }
+  .ib-warning { background: var(--color-warning-container); color: var(--color-on-warning-container); }
+  .ib-error { background: var(--color-error-container); color: var(--color-on-error-container); }
+
+  /* Field form */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+  .field label { font: var(--font-label-md); color: var(--color-on-surface-variant); }
+  .field .input-wrap { position: relative; display: flex; align-items: center; }
+  .field input, .field textarea {
+    width: 100%; min-height: 52px; border: 1.5px solid var(--color-outline);
+    border-radius: var(--radius-sm); background: transparent; padding: 14px 16px;
+    font: var(--font-body-lg); font-family: inherit; color: var(--color-on-surface);
+    transition: border-color var(--motion-short);
+  }
+  .field textarea { min-height: 110px; resize: none; line-height: 1.5; }
+  .field input:focus, .field textarea:focus { outline: none; border-color: var(--color-primary); border-width: 2px; padding: 13px 15px; }
+  .field input:focus-visible, .field textarea:focus-visible { outline: none; }
+  .field .trail-btn {
+    position: absolute; right: 6px; width: 40px; height: 40px; border-radius: 50%; border: none;
+    background: none; color: var(--color-on-surface-variant); cursor: pointer;
+    display: flex; align-items: center; justify-content: center;
+  }
+
+  /* ============ SPESIFIK PER LAYAR ============ */
+  /* Login */
+  .login-hero {
+    background: linear-gradient(160deg, var(--color-primary-container), var(--color-surface) 78%);
+    display: flex; flex-direction: column; align-items: center; text-align: center;
+    padding: 34px 24px 22px; gap: 14px;
+  }
+  .logo-shield { width: 96px; height: 96px; }
+  .wordmark { font: 800 30px/1.1 var(--font-family); letter-spacing: -0.02em; }
+  .wordmark em { font-style: normal; color: var(--color-primary); }
+  .tagline { font: var(--font-body-md); color: var(--color-on-surface-variant); max-width: 260px; }
+  .login-form { display: flex; flex-direction: column; gap: 14px; padding: 8px 24px 24px; }
+  .legal { font: var(--font-label-md); color: var(--color-on-surface-variant); text-align: center; line-height: 1.5; }
+  .legal button { color: var(--color-primary); font: inherit; background: none; border: none; cursor: pointer; text-decoration: underline; }
+
+  /* Beranda */
+  .home-header { display: flex; align-items: center; gap: 12px; }
+  .home-header .who { flex: 1; min-width: 0; }
+  .home-header .hello { font: var(--font-headline-md); letter-spacing: -0.01em; }
+  .home-header .lvl { font: var(--font-body-md); color: var(--color-on-surface-variant); margin-top: 2px; }
+  .xp-card { background: var(--color-primary-container); color: var(--color-on-primary-container); border-radius: var(--radius-xl); padding: 18px; position: relative; overflow: hidden; }
+  .xp-card .row1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
+  .xp-card .lvl-hex {
+    width: 44px; height: 44px; flex-shrink: 0; background: var(--color-primary); color: var(--color-on-primary);
+    clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
+    display: flex; align-items: center; justify-content: center; font: 800 18px/1 var(--font-family);
+  }
+  .xp-card .bar { background: rgba(0,0,0,0.14); }
+  .xp-card .bar > span { background: var(--color-primary); }
+  .xp-card .row2 { display: flex; justify-content: space-between; font: var(--font-label-md); margin-top: 8px; }
+  .streak-row { display: flex; gap: 10px; }
+  .stat-pill {
+    flex: 1; display: flex; align-items: center; gap: 8px; border-radius: var(--radius-full);
+    padding: 8px 14px 8px 10px; font: var(--font-label-md); min-height: 40px;
+  }
+  .stat-pill.warning { background: var(--color-warning-container); color: var(--color-on-warning-container); }
+  .stat-pill.tertiary { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); }
+  .stat-pill .msr { font-size: 19px; }
+  .mission-scroll { display: flex; gap: 12px; overflow-x: auto; margin: 0 -20px; padding: 4px 20px 6px; scrollbar-width: none; }
+  .mission-scroll::-webkit-scrollbar { display: none; }
+  .mission-card {
+    flex: 0 0 128px; background: var(--color-surface-container-low); border-radius: var(--radius-md);
+    padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px;
+    text-align: center; border: none; cursor: pointer; font-family: inherit; color: inherit;
+    transition: box-shadow var(--motion-short), transform var(--motion-short);
+  }
+  .mission-card:hover { box-shadow: var(--elevation-1); transform: translateY(-1px); }
+  .mission-card:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+  .mission-card .name { font: var(--font-label-lg); line-height: 1.3; }
+  .mission-card .xp { font: var(--font-label-md); color: var(--color-tertiary); display: flex; align-items: center; gap: 3px; }
+  .mission-card .xp .msr { font-size: 15px; }
+  .mission-card.done { background: var(--color-success-container); color: var(--color-on-success-container); }
+  .mission-card.done .xp { color: var(--color-on-success-container); }
+  .progress-legend { display: flex; flex-direction: column; gap: 12px; }
+  .pl-row .top { display: flex; justify-content: space-between; font: var(--font-label-md); margin-bottom: 5px; }
+  .pl-row .top .pct { color: var(--color-on-surface-variant); }
+  .help-cta { display: flex; align-items: center; gap: 12px; background: var(--color-error-container); color: var(--color-on-error-container); border-radius: var(--radius-md); padding: 14px; }
+  .help-cta .txt { flex: 1; }
+  .help-cta .t1 { font: var(--font-title-md); }
+  .help-cta .t2 { font: var(--font-body-md); margin-top: 2px; }
+  .help-cta .btn { width: auto; min-height: 40px; padding: 0 16px; background: var(--color-error); color: var(--color-on-error); flex-shrink: 0; }
+  .forum-cta { display: flex; align-items: center; gap: 12px; background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); border-radius: var(--radius-md); padding: 14px; }
+  .forum-cta .txt { flex: 1; }
+  .forum-cta .t1 { font: var(--font-title-md); }
+  .forum-cta .t2 { font: var(--font-body-md); margin-top: 2px; }
+  .forum-cta .btn { width: auto; min-height: 40px; padding: 0 16px; background: var(--color-tertiary); color: var(--color-on-tertiary); flex-shrink: 0; }
+  /* Edge states */
+  .edge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .edge-card { background: var(--color-surface-container); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
+  .edge-card .edge-label { font: var(--font-label-md); color: var(--color-on-surface-variant); text-transform: uppercase; letter-spacing: 0.08em; }
+  .edge-card .edge-title { font: var(--font-title-md); }
+  .edge-card .edge-desc { font: var(--font-body-sm); color: var(--color-on-surface-variant); }
+  .streak-broken { display: flex; align-items: center; gap: 8px; background: var(--color-error-container); color: var(--color-on-error-container); border-radius: var(--radius-sm); padding: 8px 12px; font: var(--font-label-md); }
+  .streak-broken .msr { font-size: 18px; }
+  .offline-banner { display: flex; align-items: center; gap: 8px; background: var(--color-surface-container-highest); color: var(--color-on-surface-variant); border-radius: var(--radius-sm); padding: 8px 12px; font: var(--font-label-md); }
+  .offline-banner .msr { font-size: 18px; }
+  .empty-badges { text-align: center; padding: 20px; color: var(--color-on-surface-variant); }
+  .empty-badges .msr { font-size: 40px; display: block; margin-bottom: 8px; opacity: 0.4; }
+  .notif-rejected { background: var(--color-error-container); color: var(--color-on-error-container); border-radius: var(--radius-md); padding: 12px; display: flex; gap: 10px; align-items: flex-start; }
+  /* Onboarding */
+  .onboard-slides { position: relative; overflow: hidden; border-radius: var(--radius-lg); }
+  .onboard-slide { display: none; flex-direction: column; align-items: center; text-align: center; padding: 40px 24px 24px; min-height: 380px; justify-content: center; gap: 16px; }
+  .onboard-slide.active { display: flex; }
+  .onboard-slide .msr { font-size: 64px; color: var(--color-primary); }
+  .onboard-slide h3 { font: var(--font-headline-md); }
+  .onboard-slide p { font: var(--font-body-lg); color: var(--color-on-surface-variant); max-width: 280px; }
+  .onboard-dots { display: flex; justify-content: center; gap: 8px; padding: 16px 0; }
+  .onboard-dots .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--color-outline); }
+  .onboard-dots .dot.active { background: var(--color-primary); width: 24px; border-radius: 4px; }
+  .onboard-actions { display: flex; justify-content: space-between; align-items: center; padding: 0 20px 20px; }
+
+  /* Misi */
+  .featured-mission {
+    background: linear-gradient(135deg, var(--color-primary-container), var(--color-tertiary-container));
+    color: var(--color-on-primary-container); border-radius: var(--radius-xl); padding: 18px;
+    display: flex; flex-direction: column; gap: 12px;
+  }
+  .featured-mission .kicker { font: var(--font-label-md); display: flex; align-items: center; gap: 6px; }
+  .featured-mission h3 { font: var(--font-title-lg); }
+  .featured-mission p { font: var(--font-body-md); }
+  .featured-mission .btn { background: var(--color-primary); color: var(--color-on-primary); width: auto; align-self: flex-start; padding: 0 22px; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; }
+  .cat-progress { display: flex; align-items: center; gap: 12px; margin-top: 10px; }
+  .cat-progress .progress { flex: 1; }
+  .cat-progress .val { font: var(--font-label-md); color: var(--color-on-surface-variant); min-width: 34px; text-align: right; }
+
+  /* Kuis */
+  .quiz-meta { display: flex; align-items: center; gap: 10px; }
+  .quiz-meta .q-count { font: var(--font-label-md); color: var(--color-on-surface-variant); }
+  .xp-chip {
+    margin-left: auto; display: inline-flex; align-items: center; gap: 5px;
+    background: var(--color-tertiary-container); color: var(--color-on-tertiary-container);
+    border-radius: var(--radius-full); padding: 6px 12px; font: var(--font-label-md);
+  }
+  .xp-chip .msr { font-size: 16px; }
+  .simulator {
+    background: var(--color-surface-container); border-radius: var(--radius-lg); padding: 14px;
+    display: flex; flex-direction: column; gap: 10px;
+  }
+  .sim-head { display: flex; align-items: center; gap: 10px; }
+  .sim-head .t1 { font: var(--font-title-md); }
+  .sim-head .t2 { font: var(--font-label-md); color: var(--color-on-surface-variant); }
+  .bubble {
+    background: var(--color-surface-container-high); border-radius: 4px 16px 16px 16px;
+    padding: 12px 14px; font: var(--font-body-md); line-height: 1.55; color: var(--color-on-surface);
+  }
+  .bubble .bait-link { color: var(--color-error); text-decoration: underline; font-weight: 600; }
+  .bubble .urgent { font-weight: 800; }
+  .question { font: var(--font-title-lg); text-align: center; padding-top: 2px; }
+  .answer-row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+  .answer-row .btn { border: 2px solid; background: transparent; }
+  .answer-row .btn-safe { border-color: var(--color-success); color: var(--color-success); }
+  .answer-row .btn-safe:hover:not(:disabled) { background: var(--color-success-container); }
+  .answer-row .btn-unsafe { border-color: var(--color-error); color: var(--color-error); }
+  .answer-row .btn-unsafe:hover:not(:disabled) { background: var(--color-error-container); }
+  .answer-row .btn.picked-safe { background: var(--color-success); border-color: var(--color-success); color: var(--color-on-success); }
+  .answer-row .btn.picked-unsafe { background: var(--color-error); border-color: var(--color-error); color: var(--color-on-error); }
+  .feedback { border-radius: var(--radius-md); padding: 16px; display: flex; flex-direction: column; gap: 10px; animation: rise var(--motion-medium) cubic-bezier(0.05,0.7,0.1,1); }
+  .feedback.ok { background: var(--color-success-container); color: var(--color-on-success-container); }
+  .feedback.no { background: var(--color-error-container); color: var(--color-on-error-container); }
+  .feedback .f-head { display: flex; align-items: center; gap: 8px; font: var(--font-title-md); }
+  .feedback ul { list-style: none; display: flex; flex-direction: column; gap: 6px; }
+  .feedback li { font: var(--font-body-md); line-height: 1.5; display: flex; gap: 8px; }
+  .feedback li .msr { font-size: 18px; margin-top: 1px; flex-shrink: 0; }
+  @keyframes rise { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
+
+  /* Level up */
+  .reward-screen { align-items: center; justify-content: center; text-align: center; gap: 18px; position: relative; overflow: hidden; }
+  .reward-screen .glow {
+    position: absolute; width: 420px; height: 420px; border-radius: 50%;
+    background: radial-gradient(circle, var(--color-tertiary-container) 0%, transparent 65%);
+    top: -60px; left: 50%; transform: translateX(-50%); pointer-events: none;
+  }
+  .big-badge {
+    width: 132px; height: 132px; border-radius: 50%; position: relative; z-index: 1;
+    background: var(--color-tertiary); color: var(--color-on-tertiary);
+    display: flex; align-items: center; justify-content: center;
+    box-shadow: var(--elevation-2); border: 6px solid var(--color-tertiary-container);
+    animation: pop 500ms var(--motion-long) both;
+  }
+  .big-badge .msr { font-size: 64px; }
+  @keyframes pop { from { transform: scale(0.6); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+  .reward-title { font: var(--font-display-lg); letter-spacing: -0.02em; position: relative; z-index: 1; }
+  .reward-sub { font: var(--font-body-lg); color: var(--color-on-surface-variant); max-width: 260px; position: relative; z-index: 1; }
+  .reward-xp { position: relative; z-index: 1; }
+  .unlocked-card {
+    position: relative; z-index: 1; display: flex; align-items: center; gap: 12px; text-align: left;
+    background: var(--color-surface-container); border-radius: var(--radius-md); padding: 12px 16px; width: 100%;
+  }
+  .unlocked-card .t1 { font: var(--font-title-md); }
+  .unlocked-card .t2 { font: var(--font-label-md); color: var(--color-on-surface-variant); }
+  .confetti { position: absolute; width: 8px; height: 12px; top: -20px; z-index: 0; opacity: 0.9; border-radius: 2px; animation: fall 2.8s linear infinite; }
+  @keyframes fall { to { transform: translateY(900px) rotate(660deg); } }
+
+  /* Peringkat */
+  .podium { display: grid; grid-template-columns: 1fr 1.15fr 1fr; gap: 10px; align-items: end; }
+  .podium .p-card {
+    background: var(--color-surface-container-low); border-radius: var(--radius-md);
+    padding: 14px 8px 12px; display: flex; flex-direction: column; align-items: center; gap: 7px; text-align: center;
+  }
+  .podium .p-card .rank-badge {
+    width: 26px; height: 26px; border-radius: 50%; display: flex; align-items: center; justify-content: center;
+    font: 700 13px/1 var(--font-family); background: var(--color-surface-container-highest); color: var(--color-on-surface-variant);
+  }
+  .podium .p-card.first { background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); padding-top: 18px; padding-bottom: 18px; }
+  .podium .p-card.first .rank-badge { background: var(--color-tertiary); color: var(--color-on-tertiary); }
+  .podium .p-name { font: var(--font-label-lg); }
+  .podium .p-xp { font: var(--font-label-md); color: var(--color-on-surface-variant); display: flex; align-items: center; gap: 3px; }
+  .podium .p-card.first .p-xp { color: var(--color-on-tertiary-container); }
+  .podium .p-xp .msr { font-size: 14px; }
+  .rank-list { display: flex; flex-direction: column; gap: 4px; }
+  .rank-row {
+    display: flex; align-items: center; gap: 12px; padding: 10px 12px; border-radius: var(--radius-sm);
+  }
+  .rank-row.me { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+  .rank-row .r-num { font: 700 14px/1 var(--font-family); width: 22px; text-align: center; color: var(--color-on-surface-variant); }
+  .rank-row .r-name { flex: 1; font: var(--font-title-md); }
+  .rank-row .r-xp { font: var(--font-label-md); color: var(--color-on-surface-variant); }
+  .rank-row.me .r-xp { color: var(--color-on-primary-container); }
+  .sports-note {
+    display: flex; gap: 10px; align-items: flex-start; background: var(--color-success-container);
+    color: var(--color-on-success-container); border-radius: var(--radius-md); padding: 12px 14px;
+    font: var(--font-body-md); line-height: 1.5;
+  }
+  .sports-note .msr { flex-shrink: 0; margin-top: 1px; }
+
+  /* Profil */
+  .profile-head { display: flex; flex-direction: column; align-items: center; gap: 10px; text-align: center; padding: 8px 0 2px; }
+  .profile-head .name { font: var(--font-title-lg); }
+  .profile-head .handle { font: var(--font-body-md); color: var(--color-on-surface-variant); }
+  .level-ring {
+    margin-top: -46px; border: 4px solid var(--color-surface); background: var(--color-primary);
+    color: var(--color-on-primary); border-radius: var(--radius-full); padding: 6px 14px;
+    font: var(--font-label-md); position: relative; z-index: 1;
+  }
+  .stats-row { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+  .stat-box { background: var(--color-surface-container-low); border-radius: var(--radius-md); padding: 12px 8px; text-align: center; }
+  .stat-box .v { font: 800 20px/1.2 var(--font-family); color: var(--color-primary); }
+  .stat-box .k { font: var(--font-label-md); color: var(--color-on-surface-variant); margin-top: 2px; }
+  .badge-scroll { display: flex; gap: 12px; overflow-x: auto; margin: 0 -20px; padding: 4px 20px 6px; scrollbar-width: none; }
+  .badge-scroll::-webkit-scrollbar { display: none; }
+  .badge-card {
+    flex: 0 0 104px; background: var(--color-surface-container-low); border-radius: var(--radius-md);
+    padding: 14px 10px; display: flex; flex-direction: column; align-items: center; gap: 8px; text-align: center;
+  }
+  .badge-card .b-name { font: var(--font-label-md); line-height: 1.3; }
+  .badge-card.locked { opacity: 0.72; }
+  .badge-card.locked .icon-box { background: var(--color-surface-container-highest); color: var(--color-on-surface-variant); }
+  .divider { height: 1px; background: var(--color-outline-variant); border: none; }
+
+  /* Lapor */
+  .urgent-note {
+    display: flex; gap: 10px; background: var(--color-warning-container); color: var(--color-on-warning-container);
+    border-radius: var(--radius-md); padding: 13px 14px; font: var(--font-body-md); line-height: 1.5;
+  }
+  .urgent-note .msr { flex-shrink: 0; margin-top: 1px; }
+  .chip-group { display: flex; flex-wrap: wrap; gap: 8px; }
+  .attach-btn {
+    display: flex; align-items: center; justify-content: center; gap: 8px; width: 100%;
+    min-height: 48px; border: 1.5px dashed var(--color-outline); border-radius: var(--radius-sm);
+    background: none; color: var(--color-on-surface-variant); font: var(--font-label-lg); cursor: pointer;
+  }
+  .attach-btn:hover { background: var(--state-hover); }
+  .attach-btn:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+
+  /* Fokus keyboard seragam untuk kontrol yang belum punya (audit 25 Agu 2026) */
+  .trail-btn:focus-visible,
+  .legal button:focus-visible {
+    outline: 3px solid var(--color-primary);
+    outline-offset: 2px;
+  }
+  .theme-toggle:focus-visible { outline: 3px solid #bdc3ff; outline-offset: 2px; }
+  .video-hero .icon-btn:focus-visible { outline-color: #ffffff; }
+
+  /* Materi & video (layar 09–10) */
+  .materi-item {
+    display: flex; align-items: center; gap: 12px; width: 100%; text-align: left;
+    border: none; cursor: pointer; font-family: inherit; color: inherit;
+    border-radius: var(--radius-md); padding: 14px; min-height: 68px;
+  }
+  .materi-item:focus-visible { outline: 3px solid var(--color-primary); outline-offset: 2px; }
+  .materi-item .grow { flex: 1; min-width: 0; }
+  .materi-item .t1 { font: var(--font-title-md); display: block; }
+  .materi-item .t2 { font: var(--font-body-md); display: block; margin-top: 1px; }
+  .materi-item.done { background: var(--color-success-container); color: var(--color-on-success-container); }
+  .materi-item.active { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+  .materi-item.locked { background: var(--color-surface-container-low); color: var(--color-on-surface-variant); cursor: default; }
+  .play-badge {
+    width: 40px; height: 40px; border-radius: 50%; flex-shrink: 0;
+    background: var(--color-primary); color: var(--color-on-primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .chip-mini {
+    display: inline-flex; align-items: center; gap: 4px; border-radius: var(--radius-full);
+    background: var(--color-tertiary-container); color: var(--color-on-tertiary-container);
+    font: var(--font-label-md); padding: 4px 10px; flex-shrink: 0;
+  }
+  .progress-hero {
+    background: var(--color-primary-container); color: var(--color-on-primary-container);
+    border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .progress-hero .kicker { font: var(--font-label-md); letter-spacing: 0.08em; text-transform: uppercase; }
+  .progress-hero .big { font: 800 24px/1.2 var(--font-family); }
+  .progress-hero .progress { background: rgba(0,0,0,0.14); }
+
+  /* Video player — permukaan sengaja gelap di kedua tema (HANDOFF §5, video / bg #2F3036) */
+  .video-hero { background: #2f3036; position: relative; flex-shrink: 0; }
+  .video-hero .ratio { aspect-ratio: 16 / 9; display: flex; align-items: center; justify-content: center; }
+  .video-hero .play-big {
+    width: 64px; height: 64px; border-radius: 50%; border: none; cursor: pointer;
+    background: var(--color-primary); color: var(--color-on-primary);
+    display: flex; align-items: center; justify-content: center;
+  }
+  .video-hero .play-big .msr { font-size: 34px; }
+  .video-hero .play-big:focus-visible { outline: 3px solid #ffffff; outline-offset: 2px; }
+  .video-hero .v-back { position: absolute; top: 40px; left: 6px; color: #ffffff; }
+  .video-hero .v-time {
+    position: absolute; right: 14px; bottom: 12px;
+    font: 600 12px/1 var(--font-family); color: #ffffff;
+  }
+  .video-hero .v-track { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: rgba(255,255,255,0.24); }
+  .video-hero .v-bar { position: absolute; left: 0; bottom: 0; height: 3px; width: 32%; background: var(--color-primary); }
+  .body-copy { font: var(--font-body-lg); line-height: 1.6; color: var(--color-on-surface); }
+  .meta-line { font: var(--font-body-md); color: var(--color-on-surface-variant); }
+  .poin-card {
+    background: var(--color-surface-container); border-radius: var(--radius-md);
+    padding: 16px; display: flex; flex-direction: column; gap: 10px;
+  }
+  .poin-card ul { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .poin-card li { font: var(--font-body-md); display: flex; gap: 8px; align-items: flex-start; line-height: 1.5; }
+  .poin-card li .msr { color: var(--color-success); flex-shrink: 0; }
+
+  /* Notifikasi (layar 11) */
+  .section-label { font: var(--font-label-lg); color: var(--color-on-surface-variant); }
+  .notif-item {
+    display: flex; align-items: flex-start; gap: 12px; border-radius: var(--radius-md);
+    padding: 14px; background: var(--color-surface-container-low);
+  }
+  .notif-item.unread { background: var(--color-primary-container); color: var(--color-on-primary-container); }
+  .notif-item .grow { flex: 1; min-width: 0; }
+  .notif-item .t1 { font: var(--font-title-md); }
+  .notif-item .t2 { font: var(--font-body-md); display: block; margin-top: 2px; line-height: 1.45; }
+  .notif-item .side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
+  .notif-item .time { font: var(--font-label-md); color: var(--color-on-surface-variant); }
+  .notif-item.unread .time { color: var(--color-on-primary-container); }
+  .notif-item .dot { width: 9px; height: 9px; border-radius: 50%; background: var(--color-error); }
+
+  @media (max-width: 480px) {
+    body { padding: 24px 12px 60px; }
+    .phone { width: 100%; max-width: 384px; height: auto; min-height: 700px; }
+    .theme-toggle { margin-left: 0; }
+  }
+</style>
+</head>
+<body>
+
+<header class="page-header">
+  <div class="kicker">Konsep UI · Aplikasi Android · Material Design 3</div>
+  <h1>Digital<span>Wise</span> — Gamifikasi Literasi Digital untuk Remaja</h1>
+  <p class="sub">Transformasi hi-fi dari sketsa: alur Belajar–Main–Menang, misi harian, simulasi phishing, poin &amp; badge, papan peringkat, dan laporan bantuan. 12 layar inti + onboarding + 4 state edge, light + dark, WCAG 2.2 AA.</p>
+  <div class="meta-chips">
+    <span class="meta-chip">Material 3</span>
+    <span class="meta-chip">Kontras AA terverifikasi (48 pasangan)</span>
+    <span class="meta-chip">Target sentuh 48dp</span>
+    <span class="meta-chip">Light + Dark</span>
+    <span class="meta-chip">Bahasa Indonesia</span>
+    <button class="theme-toggle" id="themeToggle" type="button" aria-pressed="false">
+      <span class="msr">dark_mode</span><span id="themeLabel">Mode Gelap</span>
+    </button>
+  </div>
+</header>
+
+<main class="screens">
+
+  <!-- ============ 1. LOGIN ============ -->
+  <section class="screen-block" aria-label="Layar 1 Masuk">
+    <div class="screen-caption">
+      <div class="num">LAYAR 01</div>
+      <h2>Masuk / Daftar</h2>
+      <p>Gerbang tunggal sesuai alur sketsa. Satu aksi utama (Masuk), pendaftaran sebagai teks — mengurangi friksi pengguna baru.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="app-body">
+        <div class="login-hero">
+          <svg class="logo-shield" viewBox="0 0 96 96" fill="none" aria-hidden="true">
+            <path d="M48 8 L82 20 V44 C82 66 67 82 48 88 C29 82 14 66 14 44 V20 Z" fill="var(--color-primary)"/>
+            <path d="M48 16 L74 25.5 V44 C74 61 62.5 74.5 48 80 C33.5 74.5 22 61 22 44 V25.5 Z" fill="var(--color-primary-container)"/>
+            <path d="M35 46 L44 55 L62 36" stroke="var(--color-primary)" stroke-width="7" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          <div class="wordmark">Digital<em>Wise</em></div>
+          <p class="tagline">Belajar, main, dan menang melawan kejahatan siber di media sosial.</p>
+        </div>
+        <form class="login-form">
+          <div class="field">
+            <label for="email">Email atau nama pengguna</label>
+            <div class="input-wrap">
+              <input id="email" type="text" autocomplete="username" placeholder="nama@contoh.com">
+              <span class="msr" style="position:absolute; right:16px; color: var(--color-on-surface-variant);" aria-hidden="true">mail</span>
+            </div>
+          </div>
+          <div class="field">
+            <label for="pass">Kata sandi</label>
+            <div class="input-wrap">
+              <input id="pass" type="password" autocomplete="current-password" placeholder="Minimal 8 karakter">
+              <button type="button" class="trail-btn" aria-label="Tampilkan kata sandi"><span class="msr">visibility</span></button>
+            </div>
+          </div>
+          <button type="button" class="btn btn-filled">Masuk</button>
+          <button type="button" class="btn btn-text">Belum punya akun? Daftar sekarang</button>
+          <p class="legal">Dengan masuk, kamu menyetujui <button type="button">Syarat Layanan</button> dan <button type="button">Kebijakan Privasi</button> kami.</p>
+        </form>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 2. BERANDA ============ -->
+  <section class="screen-block" aria-label="Layar 2 Beranda">
+    <div class="screen-caption">
+      <div class="num">LAYAR 02</div>
+      <h2>Beranda</h2>
+      <p>Sapaan personal, XP dengan sisa menuju level berikutnya (efek goal-gradient), misi harian, progres per kategori, dan akses cepat lapor.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <div class="avatar" aria-hidden="true">K</div>
+        <div class="who">
+          <div class="hello">Halo, Kirana</div>
+          <div class="lvl">Level 3 · Pemberani Digital</div>
+        </div>
+        <button class="icon-btn" aria-label="Notifikasi (1 baru)"><span class="msr">notifications</span><span class="dot"></span></button>
+      </div>
+      <div class="app-body"><div class="screen-content">
+
+        <div class="xp-card">
+          <div class="row1">
+            <div>
+              <div style="font: var(--font-title-md); margin-bottom: 2px;">350 / 600 XP</div>
+              <div style="font: var(--font-label-md); opacity: 0.85;">150 XP lagi menuju Level 4</div>
+            </div>
+            <div class="lvl-hex" aria-label="Level 3">3</div>
+          </div>
+          <div class="progress bar" role="progressbar" aria-valuenow="350" aria-valuemin="0" aria-valuemax="600" aria-label="Progres XP Level 3"><span data-xp="58"></span></div>
+          <div class="row2"><span>XP Level ini</span><span>600 XP</span></div>
+        </div>
+
+        <div class="streak-row">
+          <div class="stat-pill warning"><span class="msr filled" aria-hidden="true">local_fire_department</span>Streak 5 hari</div>
+          <div class="stat-pill tertiary"><span class="msr filled" aria-hidden="true">emoji_events</span>Peringkat #6 minggu ini</div>
+        </div>
+
+        <div>
+          <div class="section-header">
+            <h3>Misi Harian</h3>
+            <button class="link-label">Lihat semua<span class="msr" aria-hidden="true">chevron_right</span></button>
+          </div>
+          <div class="mission-scroll">
+            <button class="mission-card done">
+              <span class="icon-box ib-success"><span class="msr filled">check</span></span>
+              <span class="name">Keamanan Siber</span>
+              <span class="xp"><span class="msr">star</span>+100 XP · Selesai</span>
+            </button>
+            <button class="mission-card">
+              <span class="icon-box ib-primary"><span class="msr">lock</span></span>
+              <span class="name">Privasi Data</span>
+              <span class="xp"><span class="msr">star</span>+100 XP</span>
+            </button>
+            <button class="mission-card">
+              <span class="icon-box ib-tertiary"><span class="msr">forum</span></span>
+              <span class="name">Etika Digital</span>
+              <span class="xp"><span class="msr">star</span>+100 XP</span>
+            </button>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-header" style="margin-bottom: 14px;">
+            <h3 style="font: var(--font-title-md);">Progres Belajar</h3>
+            <button class="link-label" style="min-height:32px;">Detail</button>
+          </div>
+          <div class="progress-legend">
+            <div class="pl-row">
+              <div class="top"><span>Keamanan Siber</span><span class="pct">50%</span></div>
+              <div class="progress success"><span style="width:50%"></span></div>
+            </div>
+            <div class="pl-row">
+              <div class="top"><span>Privasi Data</span><span class="pct">60%</span></div>
+              <div class="progress tertiary"><span style="width:60%"></span></div>
+            </div>
+            <div class="pl-row">
+              <div class="top"><span>Etika Digital</span><span class="pct">40%</span></div>
+              <div class="progress warning"><span style="width:40%"></span></div>
+            </div>
+          </div>
+        </div>
+
+        <div class="help-cta">
+          <span class="icon-box ib-error"><span class="msr">report</span></span>
+          <div class="txt">
+            <div class="t1">Temu konten berbahaya?</div>
+            <div class="t2">Laporkan, mentor kami siap bantu</div>
+          </div>
+          <button class="btn">Lapor</button>
+        </div>
+
+        <div class="forum-cta">
+          <span class="icon-box" style="background: var(--color-tertiary); color: var(--color-on-tertiary);"><span class="msr">support_agent</span></span>
+          <div class="txt">
+            <div class="t1">Punya cerita atau pertanyaan?</div>
+            <div class="t2">Diskusi bareng teman &amp; mentor</div>
+          </div>
+          <button class="btn">Forum</button>
+        </div>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 3. MISI ============ -->
+  <section class="screen-block" aria-label="Layar 3 Misi">
+    <div class="screen-caption">
+      <div class="num">LAYAR 03</div>
+      <h2>Misi &amp; Materi</h2>
+      <p>Tantangan hari ini tampil menonjol (satu aksi jelas), lalu progres per kategori materi sesuai langkah 2 sketsa.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar"><h2 class="title" style="font: var(--font-headline-md);">Misi</h2></div>
+      <div class="app-body"><div class="screen-content">
+
+        <div class="featured-mission">
+          <span class="kicker"><span class="msr" aria-hidden="true">bolt</span>TANTANGAN HARI INI</span>
+          <h3>Identifikasi Pesan Phishing</h3>
+          <p>Baca 5 pesan nyata, tentukan mana yang berbahaya. Kumpulkan hadiahnya sebelum tengah malam.</p>
+          <button class="btn">Mulai Sekarang</button>
+        </div>
+
+        <div class="filter-row" role="group" aria-label="Filter misi" data-select="single">
+          <button class="chip selected" aria-pressed="true">Semua</button>
+          <button class="chip" aria-pressed="false">Sedang berjalan</button>
+          <button class="chip" aria-pressed="false">Selesai</button>
+        </div>
+
+        <div class="card">
+          <button class="list-item" style="padding: 4px 0 10px;">
+            <span class="icon-box ib-primary"><span class="msr">shield</span></span>
+            <span class="grow">
+              <span class="t1" style="display:block;">Keamanan Siber</span>
+              <span class="t2" style="display:block;">Kata sandi kuat, 2FA, dan jejak digital</span>
+            </span>
+            <span class="msr" aria-hidden="true" style="color: var(--color-on-surface-variant);">chevron_right</span>
+          </button>
+          <div class="cat-progress">
+            <div class="progress success"><span style="width:50%"></span></div>
+            <span class="val">2/4</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <button class="list-item" style="padding: 4px 0 10px;">
+            <span class="icon-box ib-tertiary"><span class="msr">lock</span></span>
+            <span class="grow">
+              <span class="t1" style="display:block;">Privasi Data</span>
+              <span class="t2" style="display:block;">Atur akun, data pribadi, dan jejak digital</span>
+            </span>
+            <span class="msr" aria-hidden="true" style="color: var(--color-on-surface-variant);">chevron_right</span>
+          </button>
+          <div class="cat-progress">
+            <div class="progress tertiary"><span style="width:60%"></span></div>
+            <span class="val">2/4</span>
+          </div>
+        </div>
+
+        <div class="card">
+          <button class="list-item" style="padding: 4px 0 10px;">
+            <span class="icon-box ib-warning"><span class="msr">forum</span></span>
+            <span class="grow">
+              <span class="t1" style="display:block;">Etika Digital</span>
+              <span class="t2" style="display:block;">Berkomunikasi sopan dan berempati daring</span>
+            </span>
+            <span class="msr" aria-hidden="true" style="color: var(--color-on-surface-variant);">chevron_right</span>
+          </button>
+          <div class="cat-progress">
+            <div class="progress warning"><span style="width:40%"></span></div>
+            <span class="val">1/4</span>
+          </div>
+        </div>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 4. KUIS / SIMULASI ============ -->
+  <section class="screen-block" aria-label="Layar 4 Simulasi Phishing">
+    <div class="screen-caption">
+      <div class="num">LAYAR 04</div>
+      <h2>Simulasi: Deteksi Phishing</h2>
+      <p>Inti aplikasi — kuis 5 soal interaktif: 4 pesan berbahaya + 1 pesan asli (soal 4) agar remaja tidak over-curiga. Umpan balik edukatif muncul seketika.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <button class="icon-btn" aria-label="Kembali"><span class="msr">arrow_back</span></button>
+        <div class="title" style="display:flex; flex-direction:column;">
+          <span style="font: var(--font-title-md);">Simulasi Phishing</span>
+          <span class="q-count" id="qCount" style="font: var(--font-label-md); color: var(--color-on-surface-variant);">Soal 1 dari 5</span>
+        </div>
+        <span class="xp-chip"><span class="msr" aria-hidden="true">star</span>+100 XP</span>
+      </div>
+      <div style="padding: 0 20px;"><div class="progress" style="width:100%" role="progressbar" aria-label="Progres kuis" aria-valuemin="0" aria-valuemax="5" aria-valuenow="1"><span id="quizBar" style="width:20%"></span></div></div>
+      <div class="app-body"><div class="screen-content" style="padding-top: 18px;">
+
+        <div class="simulator">
+          <div class="sim-head">
+            <span class="icon-box ib-error" style="width:40px;height:40px;"><span class="msr">smartphone</span></span>
+            <div>
+              <div class="t1" id="simSender">SMS · +62 811-xxxx-2210</div>
+              <div class="t2" id="simMeta">Kurir paket · 08.12</div>
+            </div>
+          </div>
+          <div class="bubble" id="simBubble"></div>
+        </div>
+
+        <p class="question">Bagaimana kamu menilai pesan ini?</p>
+
+        <div class="answer-row">
+          <button class="btn btn-safe" id="btnSafe" type="button"><span class="msr" aria-hidden="true">check_circle</span>Aman</button>
+          <button class="btn btn-unsafe" id="btnUnsafe" type="button"><span class="msr" aria-hidden="true">gpp_maybe</span>Tidak Aman</button>
+        </div>
+
+        <div class="feedback no" id="quizFeedback" role="status" hidden>
+          <div class="f-head" id="fbTitle"><span class="msr filled">cancel</span><span id="fbHead">Kurang tepat, tapi bagus mencoba!</span></div>
+          <ul id="fbList">
+            <li><span class="msr">warning</span>Hadiah "gratis" yang tak diminta adalah umpan klasik penipuan.</li>
+            <li><span class="msr">timer</span>Tenggat waktu singkat dipakai agar kamu panik dan tidak berpikir.</li>
+            <li><span class="msr">link</span>Link pendek (bit.ly) menyembunyikan tujuan sebenarnya.</li>
+          </ul>
+          <button class="btn btn-error" id="fbAction" type="button">Coba Lagi</button>
+        </div>
+
+      </div></div>
+    </div></div>
+  </section>
+
+  <!-- ============ 5. LEVEL UP ============ -->
+  <section class="screen-block" aria-label="Layar 5 Naik Level">
+    <div class="screen-caption">
+      <div class="num">LAYAR 05</div>
+      <h2>Misi Selesai · Naik Level</h2>
+      <p>Momen puncak (peak-end rule): perayaan kenaikan level + lencana baru, langsung dari langkah 4 sketsa. Konfeti menghormati Reduce Motion.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="app-body">
+        <div class="screen-content reward-screen" style="height: 100%; padding: 40px 24px 28px;">
+          <div class="glow" aria-hidden="true"></div>
+          <span class="confetti" style="left:12%; background: var(--color-tertiary); animation-delay: 0s;"></span>
+          <span class="confetti" style="left:28%; background: var(--color-primary); animation-delay: .7s;"></span>
+          <span class="confetti" style="left:47%; background: var(--color-success); animation-delay: 1.3s;"></span>
+          <span class="confetti" style="left:66%; background: var(--color-warning); animation-delay: .3s;"></span>
+          <span class="confetti" style="left:84%; background: var(--color-error); animation-delay: 1.8s;"></span>
+
+          <div class="big-badge"><span class="msr filled" aria-hidden="true">military_tech</span></div>
+          <div class="reward-title">Level 4!</div>
+          <p class="reward-sub">Luar biasa, Kirana! Kamu resmi menjadi <strong>Penjaga Aman</strong>. Terus jaga dirimu di media sosial.</p>
+          <span class="xp-chip reward-xp"><span class="msr" aria-hidden="true">star</span>+100 XP dari misi harian</span>
+
+          <div class="unlocked-card">
+            <span class="icon-box ib-tertiary"><span class="msr filled">workspace_premium</span></span>
+            <div>
+              <div class="t1">Lencana terbuka: Detektif Phishing</div>
+              <div class="t2">Selesaikan 3 simulasi tanpa salah</div>
+            </div>
+          </div>
+
+          <div style="display:flex; flex-direction:column; gap: 10px; width: 100%;">
+            <button class="btn btn-filled" type="button">Lanjut Belajar</button>
+            <button class="btn btn-text" type="button"><span class="msr" aria-hidden="true">share</span>Bagikan lencana</button>
+          </div>
+        </div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- ============ 6. PERINGKAT ============ -->
+  <section class="screen-block" aria-label="Layar 6 Peringkat">
+    <div class="screen-caption">
+      <div class="num">LAYAR 06</div>
+      <h2>Papan Peringkat</h2>
+      <p>Podium tiga besar + baris "Kamu" selalu terlihat (relevansi diri). Catatan "bersaing positif" menanamkan budaya sehat.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar"><h2 class="title" style="font: var(--font-headline-md);">Peringkat</h2></div>
+      <div class="app-body"><div class="screen-content">
+
+        <div class="filter-row" role="group" aria-label="Periode peringkat" data-select="single">
+          <button class="chip selected" aria-pressed="true">Minggu ini</button>
+          <button class="chip" aria-pressed="false">Semua waktu</button>
+        </div>
+
+        <div class="podium">
+          <div class="p-card">
+            <span class="rank-badge">2</span>
+            <span class="avatar" style="width:40px;height:40px;font-size:14px;" aria-hidden="true">A</span>
+            <span class="p-name">Aisyah</span>
+            <span class="p-xp"><span class="msr" aria-hidden="true">star</span>1.100 XP</span>
+          </div>
+          <div class="p-card first">
+            <span class="rank-badge">1</span>
+            <span class="avatar" style="width:48px;height:48px;font-size:16px; background: var(--color-tertiary); color: var(--color-on-tertiary);" aria-hidden="true">R</span>
+            <span class="p-name">Raka</span>
+            <span class="p-xp"><span class="msr" aria-hidden="true">emoji_events</span>1.250 XP</span>
+          </div>
+          <div class="p-card">
+            <span class="rank-badge">3</span>
+            <span class="avatar" style="width:40px;height:40px;font-size:14px;" aria-hidden="true">D</span>
+            <span class="p-name">Dimas</span>
+            <span class="p-xp"><span class="msr" aria-hidden="true">star</span>950 XP</span>
+          </div>
+        </div>
+
+        <div class="rank-list">
+          <div class="rank-row">
+            <span class="r-num">4</span>
+            <span class="avatar" style="width:36px;height:36px;font-size:13px;" aria-hidden="true">N</span>
+            <span class="r-name">Nadia</span>
+            <span class="r-xp">850 XP</span>
+          </div>
+          <div class="rank-row">
+            <span class="r-num">5</span>
+            <span class="avatar" style="width:36px;height:36px;font-size:13px;" aria-hidden="true">F</span>
+            <span class="r-name">Fahri</span>
+            <span class="r-xp">700 XP</span>
+          </div>
+          <div class="rank-row me">
+            <span class="r-num">6</span>
+            <span class="avatar" style="width:36px;height:36px;font-size:13px; background: var(--color-primary); color: var(--color-on-primary);" aria-hidden="true">K</span>
+            <span class="r-name">Kamu</span>
+            <span class="r-xp">650 XP · 50 XP lagi ke #5</span>
+          </div>
+        </div>
+
+        <div class="sports-note">
+          <span class="msr" aria-hidden="true">diversity_3</span>
+          <span>Bersaing secara positif! Beri semangat temanmu, bukan mengejek yang tertinggal.</span>
+        </div>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 7. PROFIL ============ -->
+  <section class="screen-block" aria-label="Layar 7 Profil">
+    <div class="screen-caption">
+      <div class="num">LAYAR 07</div>
+      <h2>Profil &amp; Lencana</h2>
+      <p>Koleksi sebagai motivasi jangka panjang: statistik, lencana terbuka vs terkunci (curiosity gap), dan pintu ke lapor/bantuan.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <h2 class="title" style="font: var(--font-headline-md);">Profil</h2>
+        <button class="icon-btn" aria-label="Pengaturan"><span class="msr">settings</span></button>
+      </div>
+      <div class="app-body"><div class="screen-content">
+
+        <div style="background: var(--color-primary-container); border-radius: var(--radius-lg); padding: 24px 16px 16px; text-align:center;">
+          <div class="avatar lg" style="margin: 0 auto; background: var(--color-primary); color: var(--color-on-primary);" aria-hidden="true">K</div>
+          <div class="level-ring" style="position: static; display: inline-block; margin-top: -18px;">Level 3 · Pemberani Digital</div>
+          <div class="name" style="font: var(--font-title-lg); margin-top: 8px;">Kirana Putri</div>
+          <div class="handle" style="font: var(--font-body-md); color: var(--color-on-primary-container);">@kirana_digital · SMP Negeri 5</div>
+        </div>
+
+        <div class="stats-row">
+          <div class="stat-box"><div class="v">650</div><div class="k">Poin</div></div>
+          <div class="stat-box"><div class="v">12</div><div class="k">Lencana</div></div>
+          <div class="stat-box"><div class="v">5</div><div class="k">Streak</div></div>
+        </div>
+
+        <div>
+          <div class="section-header" style="margin-bottom: 10px;">
+            <h3 style="font: var(--font-title-md);">Lencana</h3>
+            <button class="link-label" style="min-height: 32px;">Lihat semua</button>
+          </div>
+          <div class="badge-scroll">
+            <div class="badge-card">
+              <span class="icon-box ib-tertiary"><span class="msr filled">search</span></span>
+              <span class="b-name">Detektif Phishing</span>
+            </div>
+            <div class="badge-card">
+              <span class="icon-box ib-primary"><span class="msr filled">lock</span></span>
+              <span class="b-name">Penjaga Privasi</span>
+            </div>
+            <div class="badge-card">
+              <span class="icon-box ib-success"><span class="msr filled">volunteer_activism</span></span>
+              <span class="b-name">Warga Digital</span>
+            </div>
+            <div class="badge-card locked">
+              <span class="icon-box"><span class="msr">lock_open</span></span>
+              <span class="b-name">Master 2FA<br>Level 5</span>
+            </div>
+          </div>
+        </div>
+
+        <hr class="divider">
+
+        <div style="display:flex; flex-direction:column; gap: 2px;">
+          <button class="list-item">
+            <span class="icon-box ib-primary"><span class="msr">bar_chart</span></span>
+            <span class="grow"><span class="t1" style="display:block;">Progres Belajarku</span></span>
+            <span class="msr" aria-hidden="true" style="color:var(--color-on-surface-variant);">chevron_right</span>
+          </button>
+          <button class="list-item">
+            <span class="icon-box ib-error"><span class="msr">report</span></span>
+            <span class="grow"><span class="t1" style="display:block;">Lapor &amp; Minta Bantuan</span></span>
+            <span class="msr" aria-hidden="true" style="color:var(--color-on-surface-variant);">chevron_right</span>
+          </button>
+          <button class="list-item">
+            <span class="icon-box ib-success"><span class="msr">support_agent</span></span>
+            <span class="grow"><span class="t1" style="display:block;">Pusat Bantuan</span></span>
+            <span class="msr" aria-hidden="true" style="color:var(--color-on-surface-variant);">chevron_right</span>
+          </button>
+          <button class="list-item" style="color: var(--color-error);">
+            <span class="icon-box" style="background: var(--color-error-container); color: var(--color-on-error-container);"><span class="msr">logout</span></span>
+            <span class="grow"><span class="t1" style="display:block;">Keluar</span></span>
+          </button>
+        </div>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 8. LAPOR ============ -->
+  <section class="screen-block" aria-label="Layar 8 Lapor dan Bantuan">
+    <div class="screen-caption">
+      <div class="num">LAYAR 08</div>
+      <h2>Lapor &amp; Minta Bantuan</h2>
+      <p>Fitur ke-6 sketsa. Form pendek dengan chip kategori, prioritas pada rasa aman: data sensitif dan janji tindak lanjut dijelaskan.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <button class="icon-btn" aria-label="Kembali"><span class="msr">arrow_back</span></button>
+        <h2 class="title">Lapor &amp; Bantuan</h2>
+      </div>
+      <div class="app-body"><div class="screen-content">
+
+        <div class="urgent-note">
+          <span class="msr filled" aria-hidden="true">warning</span>
+          <span>Sedang dalam bahaya atau terancam? Segera ceritakan ke orang dewasa yang kamu percaya. Laporan di sini tidak menggantikan pertolongan darurat.</span>
+        </div>
+
+        <div class="field">
+          <label id="catLabel">Apa yang kamu alami? <span style="font-weight:400;">(boleh pilih lebih dari satu)</span></label>
+          <div class="chip-group" role="group" aria-labelledby="catLabel" data-select="multi">
+            <button class="chip" aria-pressed="false">Phishing</button>
+            <button class="chip" aria-pressed="false">Penipuan online</button>
+            <button class="chip" aria-pressed="false">Perundungan siber</button>
+            <button class="chip" aria-pressed="false">Akun dibajak</button>
+            <button class="chip" aria-pressed="false">Konten tidak pantas</button>
+            <button class="chip" aria-pressed="false">Lainnya</button>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="story">Ceritakan kejadiannya</label>
+          <textarea id="story" placeholder="Kapan, di platform apa, dan seperti apa kejadiannya. Jangan bagikan kata sandimu di sini."></textarea>
+        </div>
+
+        <button class="attach-btn" type="button"><span class="msr" aria-hidden="true">attach_file</span>Lampirkan tangkapan layar</button>
+
+        <button class="btn btn-filled" type="button">Kirim Laporan</button>
+
+        <div class="sports-note" style="background: var(--color-secondary-container); color: var(--color-on-secondary-container);">
+          <span class="msr" aria-hidden="true">verified_user</span>
+          <span>Laporanmu hanya dibaca mentor terverifikasi. Identitasmu dirahasiakan, dan kamu akan menerima balasan di tab Notifikasi dalam 1×24 jam.</span>
+        </div>
+
+      </div></div>
+    </div></div>
+  </section>
+
+  <!-- ============ 9. MATERI KATEGORI ============ -->
+  <section class="screen-block" aria-label="Layar 9 Materi Keamanan Siber">
+    <div class="screen-caption">
+      <div class="num">LAYAR 09</div>
+      <h2>Materi Keamanan Siber</h2>
+      <p>Daftar materi per kategori dengan status selesai / berjalan / terkunci (curiosity gap), ringkasan progres, dan pintu ke simulasi.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <button class="icon-btn" aria-label="Kembali"><span class="msr">arrow_back</span></button>
+        <div class="title" style="display:flex; flex-direction:column;">
+          <span style="font: var(--font-title-md);">Keamanan Siber</span>
+          <span style="font: var(--font-label-md); color: var(--color-on-surface-variant);">2 dari 4 materi selesai</span>
+        </div>
+      </div>
+      <div class="app-body"><div class="screen-content">
+
+        <div class="progress-hero">
+          <span class="kicker">Progres Kategori</span>
+          <span class="big">50% selesai</span>
+          <div class="progress" role="progressbar" aria-valuenow="50" aria-valuemin="0" aria-valuemax="100" aria-label="Progres kategori Keamanan Siber"><span style="width:50%"></span></div>
+        </div>
+
+        <h3 style="font: var(--font-title-lg);">Daftar materi</h3>
+
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <button class="materi-item done" type="button">
+            <span class="msr filled" aria-hidden="true" style="font-size:26px; color: var(--color-success);">check_circle</span>
+            <span class="grow">
+              <span class="t1">Kata sandi yang kuat</span>
+              <span class="t2">Selesai · 5 menit</span>
+            </span>
+          </button>
+          <button class="materi-item done" type="button">
+            <span class="msr filled" aria-hidden="true" style="font-size:26px; color: var(--color-success);">check_circle</span>
+            <span class="grow">
+              <span class="t1">Verifikasi dua langkah (2FA)</span>
+              <span class="t2">Selesai · 7 menit</span>
+            </span>
+          </button>
+          <button class="materi-item active" type="button">
+            <span class="play-badge"><span class="msr" aria-hidden="true">play_arrow</span></span>
+            <span class="grow">
+              <span class="t1">Menyimpan sandi aman</span>
+              <span class="t2">Mulai · Video 6 menit</span>
+            </span>
+            <span class="chip-mini">+25 XP</span>
+          </button>
+          <div class="materi-item locked" aria-disabled="true">
+            <span class="msr" aria-hidden="true" style="font-size:24px;">lock</span>
+            <span class="grow">
+              <span class="t1">Mengenali social engineering</span>
+              <span class="t2">Selesaikan materi sebelumnya</span>
+            </span>
+          </div>
+        </div>
+
+        <button class="btn btn-outlined" type="button"><span class="msr" aria-hidden="true">bolt</span>Ikuti Simulasi Keamanan</button>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 10. DETAIL MATERI ============ -->
+  <section class="screen-block" aria-label="Layar 10 Detail Materi">
+    <div class="screen-caption">
+      <div class="num">LAYAR 10</div>
+      <h2>Detail Materi</h2>
+      <p>Pemutar video dengan progres terlihat, poin penting yang bisa dipindai, dan satu CTA penutup berhadiah XP. Focused task — tanpa bottom nav.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="video-hero">
+        <div class="status-bar" style="color:#ffffff;"><span>12:30</span><span class="status-icons">
+          <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+        </span></div>
+        <div class="ratio">
+          <button class="play-big" type="button" aria-label="Putar video"><span class="msr" aria-hidden="true">play_arrow</span></button>
+        </div>
+        <button class="icon-btn v-back" type="button" aria-label="Kembali"><span class="msr">arrow_back</span></button>
+        <span class="v-track" aria-hidden="true"></span>
+        <span class="v-bar" aria-hidden="true"></span>
+        <span class="v-time">06:24</span>
+      </div>
+      <div class="app-body"><div class="screen-content" style="padding-top:16px;">
+
+        <div style="display:flex; gap:8px; align-items:center;">
+          <span class="chip selected" style="cursor:default;">Keamanan Siber</span>
+          <span class="chip-mini">+25 XP</span>
+        </div>
+
+        <h2 style="font: var(--font-headline-md); letter-spacing:-0.01em;">Menyimpan sandi dengan aman</h2>
+        <p class="meta-line">Video 6 menit · Level pemula</p>
+
+        <p class="body-copy">Menyimpan sandi di satu tempat yang aman membuatmu tidak perlu menghafal puluhan sandi. Cara terbaik: gunakan aplikasi manager sandi terpercaya.</p>
+        <p class="body-copy">Hindari menyimpan sandi di catatan HP atau kertas tempel di monitor. Kalau satu hilang, semua akunmu ikut terancam.</p>
+
+        <div class="poin-card">
+          <div class="card-title">Poin penting</div>
+          <ul>
+            <li><span class="msr filled" aria-hidden="true">check_circle</span>Gunakan manager sandi pilihan mentor.</li>
+            <li><span class="msr filled" aria-hidden="true">check_circle</span>Aktifkan kunci layar di manager sandi.</li>
+            <li><span class="msr filled" aria-hidden="true">check_circle</span>Jangan bagikan sandi lewat chat.</li>
+          </ul>
+        </div>
+
+        <button class="btn btn-filled" type="button">Selesaikan &amp; Ambil +25 XP</button>
+
+      </div></div>
+    </div></div>
+  </section>
+
+  <!-- ============ 11. NOTIFIKASI ============ -->
+  <section class="screen-block" aria-label="Layar 11 Notifikasi">
+    <div class="screen-caption">
+      <div class="num">LAYAR 11</div>
+      <h2>Notifikasi</h2>
+      <p>Dikelompokkan per waktu (Hari ini / Minggu ini), item belum dibaca ditandai container + titik bentuk (bukan warna saja), aksi "Tandai dibaca" di top bar.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <button class="icon-btn" aria-label="Kembali"><span class="msr">arrow_back</span></button>
+        <h2 class="title" style="font: var(--font-title-lg);">Notifikasi</h2>
+        <button class="link-label" style="min-height:32px;">Tandai dibaca</button>
+      </div>
+      <div class="app-body"><div class="screen-content">
+
+        <h3 class="section-label">Hari ini</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="notif-item unread">
+            <span class="icon-box" style="background: var(--color-primary); color: var(--color-on-primary);"><span class="msr">support_agent</span></span>
+            <span class="grow">
+              <span class="t1">Dewi membalas laporanmu</span>
+              <span class="t2">Laporanmu sudah ditindaklanjuti mentor.</span>
+            </span>
+            <span class="side"><span class="time">2 jam lalu</span><span class="dot" aria-hidden="true"></span></span>
+          </div>
+          <div class="notif-item">
+            <span class="icon-box ib-tertiary"><span class="msr filled">military_tech</span></span>
+            <span class="grow">
+              <span class="t1">Lencana baru: Detektif Phishing</span>
+              <span class="t2">Kamu menyelesaikan 3 simulasi tanpa salah.</span>
+            </span>
+            <span class="side"><span class="time">5 jam lalu</span></span>
+          </div>
+          <div class="notif-item">
+            <span class="icon-box ib-primary"><span class="msr">checklist</span></span>
+            <span class="grow">
+              <span class="t1">Misi harian menunggu</span>
+              <span class="t2">Selesaikan 2 misi untuk menjaga streak 6 hari.</span>
+            </span>
+            <span class="side"><span class="time">8 jam lalu</span></span>
+          </div>
+        </div>
+
+        <h3 class="section-label">Minggu ini</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="notif-item">
+            <span class="icon-box ib-warning"><span class="msr">bar_chart</span></span>
+            <span class="grow">
+              <span class="t1">Hasil peringkat mingguan</span>
+              <span class="t2">Kamu naik 2 peringkat minggu ini! Terus semangat.</span>
+            </span>
+            <span class="side"><span class="time">Kemarin</span></span>
+          </div>
+          <div class="notif-item">
+            <span class="icon-box ib-primary"><span class="msr">shield</span></span>
+            <span class="grow">
+              <span class="t1">Materi baru: social engineering</span>
+              <span class="t2">Kategori Keamanan Siber sudah terbuka.</span>
+            </span>
+            <span class="side"><span class="time">2 hari lalu</span></span>
+          </div>
+        </div>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 12. DISKUSI & FORUM ============ -->
+  <section class="screen-block" aria-label="Layar 12 Diskusi & Forum">
+    <div class="screen-caption">
+      <div class="num">LAYAR 12</div>
+      <h2>Diskusi &amp; Forum</h2>
+      <p>Thread diskusi dikelompokkan Populer/Baru. Item belum dibaca ditandai container + titik bentuk (bukan warna saja). Top action "Buat Pertanyaan".</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+      <div class="top-bar">
+        <button class="icon-btn" aria-label="Kembali"><span class="msr">arrow_back</span></button>
+        <h2 class="title" style="font: var(--font-title-lg);">Diskusi &amp; Forum</h2>
+        <button class="link-label" style="min-height:32px;">Buat Pertanyaan</button>
+      </div>
+      <div class="app-body"><div class="screen-content">
+
+        <h3 class="section-label">Populer</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="notif-item unread">
+            <span class="icon-box" style="background: var(--color-primary); color: var(--color-on-primary);"><span class="msr">support_agent</span></span>
+            <span class="grow">
+              <span class="t1">Tanya mentor: apakah VPN aman?</span>
+              <span class="t2">Dijawab Mentor Arif &middot; 12 balasan</span>
+            </span>
+            <span class="side"><span class="time">2 jam lalu</span><span class="dot" aria-hidden="true"></span></span>
+          </div>
+          <div class="notif-item">
+            <span class="icon-box ib-tertiary"><span class="msr filled">military_tech</span></span>
+            <span class="grow">
+              <span class="t1">Tantangan: 3 hari bebas phishing</span>
+              <span class="t2">21 remaja ikut &middot; hadiah lencana</span>
+            </span>
+            <span class="side"><span class="time">5 jam lalu</span></span>
+          </div>
+          <div class="notif-item">
+            <span class="icon-box ib-primary"><span class="msr">checklist</span></span>
+            <span class="grow">
+              <span class="t1">Checklist: akunmu sudah 2FA belum?</span>
+              <span class="t2">Bagikan progresmu dan saling ingat.</span>
+            </span>
+            <span class="side"><span class="time">8 jam lalu</span></span>
+          </div>
+        </div>
+
+        <h3 class="section-label">Baru</h3>
+        <div style="display:flex; flex-direction:column; gap:10px;">
+          <div class="notif-item">
+            <span class="icon-box ib-warning"><span class="msr">bar_chart</span></span>
+            <span class="grow">
+              <span class="t1">Polling: pernah ditawari akun murahan?</span>
+              <span class="t2">68% pernah &mdash; lihat hasilnya dan ceritakan.</span>
+            </span>
+            <span class="side"><span class="time">Kemarin</span></span>
+          </div>
+          <div class="notif-item">
+            <span class="icon-box ib-primary"><span class="msr">shield</span></span>
+            <span class="grow">
+              <span class="t1">Tips mengenali social engineering</span>
+              <span class="t2">Ringkasan materi + diskusi kelas.</span>
+            </span>
+            <span class="side"><span class="time">2 hari lalu</span></span>
+          </div>
+        </div>
+
+      </div></div>
+      <nav class="bottom-nav" aria-label="Navigasi utama">
+        <button class="nav-item" aria-current="page"><span class="nav-pill"><span class="msr">home</span></span>Beranda</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">checklist</span></span>Misi</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">leaderboard</span></span>Peringkat</button>
+        <button class="nav-item"><span class="nav-pill"><span class="msr">person</span></span>Profil</button>
+      </nav>
+    </div></div>
+  </section>
+
+  <!-- ============ 13. ONBOARDING & IZIN ============ -->
+  <section class="screen-block" aria-label="Onboarding dan Izin Notifikasi">
+    <div class="screen-caption">
+      <div class="num">LAYAR 13–14</div>
+      <h2>Onboarding &amp; Izin</h2>
+      <p>3 slide onboarding (intro → gamifikasi → izin notifikasi) + dialog permission. Retensi 5 menit pertama: tujuan app jelas dalam 10 detik.</p>
+    </div>
+    <div class="phone"><div class="phone-screen">
+      <div class="status-bar"><span>12:30</span><span class="status-icons">
+        <span class="msr" aria-hidden="true">signal_cellular_alt</span><span class="msr" aria-hidden="true">wifi</span><span class="msr" aria-hidden="true">battery_full</span>
+      </span></div>
+
+      <div class="onboard-slides" id="onboardSlides">
+        <!-- Slide 1: Intro -->
+        <div class="onboard-slide active" data-slide="0">
+          <span class="msr" aria-hidden="true">shield</span>
+          <h3>Selamat datang di DigitalWise</h3>
+          <p>Belajar keamanan digital dengan cara yang asik — tidak membosankan, tidak menggurui.</p>
+        </div>
+        <!-- Slide 2: Gamifikasi -->
+        <div class="onboard-slide" data-slide="1">
+          <span class="msr" aria-hidden="true">emoji_events</span>
+          <h3>Belajar sambil bermain</h3>
+          <p>Kumpulkan XP, buka lencana, dan naik peringkat — setiap misi membuatmu lebih jago melindungi diri.</p>
+        </div>
+        <!-- Slide 3: Izin -->
+        <div class="onboard-slide" data-slide="2">
+          <span class="msr" aria-hidden="true">notifications_active</span>
+          <h3>Izinkan notifikasi?</h3>
+          <p>Kami akan mengingatkanmu menyelesaikan misi harian — cukup sekali sehari, tidak spam.</p>
+        </div>
+      </div>
+
+      <div class="onboard-dots" aria-hidden="true">
+        <span class="dot active" data-dot="0"></span>
+        <span class="dot" data-dot="1"></span>
+        <span class="dot" data-dot="2"></span>
+      </div>
+
+      <div class="onboard-actions">
+        <button class="link-label" id="onboardSkip" style="min-height:32px; color: var(--color-on-surface-variant);">Lewati</button>
+        <button class="btn btn-filled" id="onboardNext" style="min-width: 120px;">Selanjutnya</button>
+      </div>
+
+    </div></div>
+  </section>
+
+  <!-- ============ 14. STATE KOSONG & ERROR ============ -->
+  <section class="screen-block" aria-label="State Kosong dan Error">
+    <div class="screen-caption">
+      <div class="num">STATE</div>
+      <h2>State Kosong &amp; Error</h2>
+      <p>Edge case penting: streak putus, offline, nol lencana, laporan ditolak. Semua pakai warna &amp; ikon (bukan warna saja) untuk aksesibilitas.</p>
+    </div>
+    <div class="edge-grid">
+
+      <!-- Streak putus -->
+      <div class="edge-card">
+        <span class="edge-label">Streak Putus</span>
+        <div class="streak-broken">
+          <span class="msr" aria-hidden="true">local_fire_department</span>
+          <span>Streak terputus! Mulai lagi hari ini.</span>
+        </div>
+        <p class="edge-desc">Muncul di Beranda ketika pengguna melewatkan satu hari. Tombol "Mulai streak baru" sebagai CTA. Warna error-container untuk urgency tanpa alarm.</p>
+      </div>
+
+      <!-- Offline -->
+      <div class="edge-card">
+        <span class="edge-label">Offline</span>
+        <div class="offline-banner">
+          <span class="msr" aria-hidden="true">cloud_off</span>
+          <span>Tidak ada koneksi internet</span>
+        </div>
+        <p class="edge-desc">Banner persistent di bawah top bar. Konten yang sudah di-cache tetap bisa diakses. Muncul di semua layar, auto-dismiss saat online.</p>
+      </div>
+
+      <!-- Nol lencana -->
+      <div class="edge-card">
+        <span class="edge-label">Nol Lencana</span>
+        <div class="empty-badges">
+          <span class="msr" aria-hidden="true">military_tech</span>
+          <span style="font: var(--font-title-md);">Belum ada lencana</span>
+          <span style="font: var(--font-body-sm); display:block; margin-top:4px;">Selesaikan misi dan kuis untuk mengumpulkan lencana pertamamu.</span>
+        </div>
+        <p class="edge-desc">State kosong di Profil (tab Lencana). Ikon besar redup + copy motivasi. Tidak ada CTA — user harus menyelesaikan misi dulu.</p>
+      </div>
+
+      <!-- Laporan ditolak -->
+      <div class="edge-card">
+        <span class="edge-label">Laporan Ditolak</span>
+        <div class="notif-rejected">
+          <span class="icon-box" style="background: var(--color-error); color: var(--color-on-error); flex-shrink:0;"><span class="msr">cancel</span></span>
+          <span class="grow">
+            <span class="t1" style="font: var(--font-title-md);">Laporanmu ditolak</span>
+            <span class="t2" style="font: var(--font-body-sm); display:block; margin-top:2px;">Konten yang dilaporkan tidak melanggar pedoman. Pelajari cara mengenali konten bermasalah.</span>
+          </span>
+        </div>
+        <p class="edge-desc">Notifikasi di panel Notifikasi. Error-container bg + cancel ikon. Link "Pelajari" membuka materi terkait (recovery path).</p>
+      </div>
+
+    </div>
+  </section>
+
+</main>
+<section class="notes" aria-label="Catatan desain">
+  <div class="note-card">
+    <h3><span class="msr" aria-hidden="true">psychology</span>Psikologi Gamifikasi</h3>
+    <ul>
+      <li><strong>Goal-gradient:</strong> XP card menampilkan "150 XP lagi" — progres mendekati target mempercepat usaha.</li>
+      <li><strong>Peak-end rule:</strong> naik level dirayakan layar penuh — momen paling diingat saat sesi berakhir.</li>
+      <li><strong>Loss aversion:</strong> streak harian memberi alasan kembali tanpa paksaan.</li>
+      <li><strong>Social comparison sehat:</strong> baris "Kamu" + catatan bersaing positif di peringkat.</li>
+    </ul>
+  </div>
+  <div class="note-card">
+    <h3><span class="msr" aria-hidden="true">accessibility_new</span>Aksesibilitas</h3>
+    <ul>
+      <li>48 pasangan warna light+dark lolos WCAG AA (teks 4.5:1, UI 3:1) — terverifikasi skrip.</li>
+      <li>Semua target sentuh minimal 48dp dengan jarak 8dp (M3).</li>
+      <li>Bottom nav memakai aria-current; ikon dekoratif aria-hidden; label form eksplisit.</li>
+      <li>Animasi konfeti &amp; transisi dimatikan otomatis saat prefers-reduced-motion.</li>
+    </ul>
+  </div>
+  <div class="note-card">
+    <h3><span class="msr" aria-hidden="true">edit_note</span>Keputusan vs Sketsa</h3>
+    <ul>
+      <li>Pie chart progres diganti <strong>progress bars</strong>: perbandingan 3 nilai lebih presisi dan ramah buta warna.</li>
+      <li>Ditambah layar <strong>reward level-up</strong> dan <strong>streak</strong> — memperkuat loop Belajar–Main–Menang.</li>
+      <li>Sketsa menulis "Raka" peringkat 1 tapi Level 3 — dihaluskan: podium + baris "Kamu" agar konsisten.</li>
+      <li>Persona demo = "Kamu" (Kirana Putri, peringkat #6, 650 XP) — Raka adalah peer di podium #1; sapaan Beranda, layar naik level, dan Profil mengikuti persona ini.</li>
+      <li>Tombol kuis Aman/Tidak Aman memakai outline + warna (bukan warna saja) untuk buta warna.</li>
+    </ul>
+  </div>
+</section>
+
+<script>
+  // ---- Tema light/dark ----
+  const root = document.documentElement;
+  const toggle = document.getElementById('themeToggle');
+  const label = document.getElementById('themeLabel');
+  const sysDark = window.matchMedia('(prefers-color-scheme: dark)');
+  function apply(theme) {
+    root.dataset.theme = theme;
+    toggle.setAttribute('aria-pressed', String(theme === 'dark'));
+    label.textContent = theme === 'dark' ? 'Mode Terang' : 'Mode Gelap';
+    toggle.querySelector('.msr').textContent = theme === 'dark' ? 'light_mode' : 'dark_mode';
+  }
+  apply(sysDark.matches ? 'dark' : 'light');
+  toggle.addEventListener('click', () => apply(root.dataset.theme === 'dark' ? 'light' : 'dark'));
+
+  // ---- Animasi XP bar saat terlihat ----
+  const xpBar = document.querySelector('[data-xp]');
+  if (xpBar) {
+    requestAnimationFrame(() => setTimeout(() => { xpBar.style.width = xpBar.dataset.xp + '%'; }, 250));
+  }
+
+  // ---- Kuis: 5 soal interaktif (paritas dengan board 04a–04e Penpot) ----
+  const btnSafe = document.getElementById('btnSafe');
+  const btnUnsafe = document.getElementById('btnUnsafe');
+  const panel = document.getElementById('quizFeedback');
+  const fbHead = document.getElementById('fbHead');
+  const fbTitleIcon = document.querySelector('#fbTitle .msr');
+  const fbAction = document.getElementById('fbAction');
+  const fbList = document.getElementById('fbList');
+  const qCount = document.getElementById('qCount');
+  const quizBar = document.getElementById('quizBar');
+  const quizBarWrap = quizBar.closest('.progress');
+  const simSender = document.getElementById('simSender');
+  const simMeta = document.getElementById('simMeta');
+  const simBubble = document.getElementById('simBubble');
+  const scroller = btnSafe.closest('.app-body');
+
+  const QUESTIONS = [
+    {
+      sender: 'SMS · +62 811-xxxx-2210', meta: 'Kurir paket · 08.12', correct: 'unsafe',
+      bubble: `<span class="urgent">PAKET TERTAHAN</span> — kiriman No. JP-88213 belum bisa diproses. Bayar biaya bea cukai <span class="urgent">Rp65.000</span> dalam 2 jam agar paket tidak dikembalikan.<br>Bayar di: <span class="bait-link">bit.ly/bayar-paket-88</span><br><br>Apakah pesan ini aman?`,
+      okTitle: 'Tepat! Pesan ini ciri-ciri phishing.',
+      okList: [
+        ['local_shipping', 'Kurir resmi tidak minta transfer mendadak lewat link.'],
+        ['timer', 'Tenggat 2 jam dipakai supaya kamu panik dan tidak berpikir.'],
+        ['link', 'Lacak resi di aplikasi resmi kurir, bukan lewat link singkat.'],
+      ],
+      noTitle: 'Kurang tepat — pesan ini berbahaya.',
+      noList: [
+        ['sms', 'Kurir resmi tak pernah meminta bayaran lewat link singkat.'],
+        ['link', 'Selalu cek nomor resi di aplikasi resmi kurir.'],
+      ],
+    },
+    {
+      sender: 'SMS · +62 812-xxxx-8890', meta: 'Nomor tidak dikenal · 09.41', correct: 'unsafe',
+      bubble: `<span class="urgent">SELAMAT!!!</span> Kamu terpilih memenangkan hadiah Rp5.000.000 dari undian operator. <span class="urgent">Klaim dalam 1 jam</span> sebelum hangus!<br>Klik: <span class="bait-link">bit.ly/hadiah-gratis-23</span><br><br>Apakah pesan ini aman?`,
+      okTitle: 'Tepat! Pesan ini ciri-ciri phishing.',
+      okList: [
+        ['warning', 'Hadiah "gratis" yang tak diminta adalah umpan klasik penipuan.'],
+        ['timer', 'Tenggat waktu singkat dipakai agar kamu panik dan tidak berpikir.'],
+        ['link', 'Link pendek (bit.ly) menyembunyikan tujuan sebenarnya.'],
+      ],
+      noTitle: 'Kurang tepat — pesan ini berbahaya.',
+      noList: [
+        ['sms', 'Pengirim resmi tak pernah meminta klaim hadiah lewat link singkat.'],
+        ['link', 'Periksa alamat link sebelum diklik — bit.ly bisa menuju mana saja.'],
+      ],
+    },
+    {
+      sender: 'SMS · +62 813-xxxx-4477', meta: 'Nomor tidak dikenal · 19.05', correct: 'unsafe',
+      bubble: `Hai, aku Salsa dari kelas sebelah! HP-ku hilang dan aku login WA di HP baru, tapi OTP-nya masuk ke nomormu. <span class="urgent">Balas kodenya ya</span>, aku butuh banget.<br><br>Apakah pesan ini aman?`,
+      okTitle: 'Tepat! Ini upaya pencurian akun.',
+      okList: [
+        ['password', 'Kode OTP adalah kunci akunmu — jangan pernah dibagikan.'],
+        ['person_off', '"Teman" yang minta OTP biasanya akunnya sudah dibajak.'],
+        ['call', 'Abaikan, lalu konfirmasi ke teman lewat jalur lain.'],
+      ],
+      noTitle: 'Kurang tepat — ini pencurian akun.',
+      noList: [
+        ['sms', 'Siapa pun yang meminta OTP adalah red flag, meski mengaku teman.'],
+        ['link', 'OTP tidak pernah dibagikan lewat balasan pesan.'],
+      ],
+    },
+    {
+      sender: 'Pesan · Bu Ratna (Guru BK)', meta: 'Kontak tersimpan · 07.30', correct: 'safe',
+      bubble: `Assalamualaikum, anak-anak. Pengingat: diskusi kelompok besok jam 9 pagi di ruang BK. Bawa catatan tugas daring kalian ya. Terima kasih!<br><br>Apakah pesan ini aman?`,
+      okTitle: 'Tepat! Pesan ini aman.',
+      okList: [
+        ['person_check', 'Pengirim dikenal dan sudah tersimpan di kontak.'],
+        ['link_off', 'Tidak ada link mencurigakan atau permintaan data pribadi.'],
+        ['event', 'Isinya masuk akal dan bisa dikonfirmasi ke sekolah.'],
+      ],
+      noTitle: 'Kurang tepat — pesan ini justru aman.',
+      noList: [
+        ['sms', 'Tidak ada tanda bahaya: pengirim jelas, tanpa link, tanpa tekanan.'],
+        ['info', 'Tidak semua pesan adalah penipuan — nilai dulu, baru putuskan.'],
+      ],
+    },
+    {
+      sender: 'Email · no-reply@instagrarn-secure.info', meta: 'Domain mirip, bukan resmi · 21.14', correct: 'unsafe',
+      bubble: `<span class="urgent">PERINGATAN TERAKHIR!</span> Akunmu akan <span class="urgent">DIBLOKIR PERMANEN</span> dalam 24 jam karena dugaan pelanggaran. Verifikasi identitas sekarang.<br>Buka: <span class="bait-link">instagrarn-secure.info/verify</span><br><br>Apakah pesan ini aman?`,
+      okTitle: 'Tepat! Ini phishing klasik.',
+      okList: [
+        ['alternate_email', 'Domain palsu: "instagrarn" (r-n) meniru nama resmi.'],
+        ['gpp_maybe', 'Platform resmi tidak memverifikasi akun lewat link di pesan.'],
+        ['shield', 'Cek status akun langsung dari aplikasi resminya.'],
+      ],
+      noTitle: 'Kurang tepat — pesan ini berbahaya.',
+      noList: [
+        ['sms', 'Ancaman "diblokir" plus link = pola phishing paling umum.'],
+        ['link', 'Periksa ejaan domain satu per satu sebelum membuka.'],
+      ],
+    },
+  ];
+
+  let qIdx = 0, score = 0;
+
+  function renderList(items) {
+    fbList.innerHTML = items.map(([icon, text]) =>
+      `<li><span class="msr" aria-hidden="true">${icon}</span><span>${text}</span></li>`).join('');
+  }
+
+  function loadQuestion() {
+    const q = QUESTIONS[qIdx];
+    qCount.textContent = `Soal ${qIdx + 1} dari ${QUESTIONS.length}`;
+    quizBarWrap.setAttribute('aria-valuenow', String(qIdx + 1));
+    quizBar.style.width = ((qIdx + 1) / QUESTIONS.length * 100) + '%';
+    simSender.textContent = q.sender;
+    simMeta.textContent = q.meta;
+    simBubble.innerHTML = q.bubble;
+    btnSafe.disabled = false; btnUnsafe.disabled = false;
+    btnSafe.classList.remove('picked-safe'); btnUnsafe.classList.remove('picked-unsafe');
+    panel.hidden = true;
+    scroller.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  function answer(pickedSafe) {
+    const q = QUESTIONS[qIdx];
+    const correct = (q.correct === 'safe') === pickedSafe;
+    if (correct) score++;
+    btnSafe.disabled = true; btnUnsafe.disabled = true;
+    (pickedSafe ? btnSafe : btnUnsafe).classList.add(pickedSafe ? 'picked-safe' : 'picked-unsafe');
+    panel.hidden = false;
+    panel.classList.remove('ok', 'no');
+    panel.classList.add(correct ? 'ok' : 'no');
+    fbTitleIcon.textContent = correct ? 'check_circle' : 'cancel';
+    fbHead.textContent = correct ? q.okTitle : q.noTitle;
+    renderList(correct ? q.okList : q.noList);
+    const last = qIdx === QUESTIONS.length - 1;
+    fbAction.textContent = last ? 'Selesaikan Kuis' : 'Lanjut ke soal berikutnya';
+    fbAction.className = 'btn ' + (correct ? 'btn-success' : 'btn-error');
+  }
+
+  function finishQuiz() {
+    panel.hidden = false;
+    panel.classList.remove('no'); panel.classList.add('ok');
+    fbTitleIcon.textContent = 'military_tech';
+    fbHead.textContent = `Kuis selesai! Skor ${score} dari ${QUESTIONS.length}.`;
+    renderList([
+      ['star', '+100 XP dari tantangan harian masuk ke XP-mu.'],
+      ['workspace_premium', 'Jawab 3 simulasi benar berturut-turut untuk membuka lencana "Detektif Phishing".'],
+      ['refresh', 'Ulangi kuis kapan saja untuk menjaga streak belajarmu.'],
+    ]);
+    fbAction.textContent = 'Ulangi Kuis';
+    fbAction.className = 'btn btn-filled';
+    scroller.scrollTo({ top: 0, behavior: 'smooth' });
+  }
+
+  btnSafe.addEventListener('click', () => answer(true));
+  btnUnsafe.addEventListener('click', () => answer(false));
+  fbAction.addEventListener('click', () => {
+    if (fbAction.textContent === 'Ulangi Kuis') { qIdx = 0; score = 0; loadQuestion(); }
+    else if (qIdx === QUESTIONS.length - 1) finishQuiz();
+    else { qIdx++; loadQuestion(); }
+  });
+  loadQuestion();
+
+  // ---- Onboarding carousel ----
+  const onboardSlides = document.querySelectorAll('.onboard-slide');
+  const onboardDots = document.querySelectorAll('.onboard-dots .dot');
+  const onboardNext = document.getElementById('onboardNext');
+  const onboardSkip = document.getElementById('onboardSkip');
+  let onboardIdx = 0;
+  function showOnboardSlide(idx) {
+    onboardSlides.forEach((s, i) => { s.classList.toggle('active', i === idx); });
+    onboardDots.forEach((d, i) => { d.classList.toggle('active', i === idx); });
+    onboardNext.textContent = idx === onboardSlides.length - 1 ? 'Mulai' : 'Selanjutnya';
+    onboardSkip.style.visibility = idx === 0 ? 'visible' : 'visible';
+  }
+  if (onboardNext) {
+    onboardNext.addEventListener('click', () => {
+      if (onboardIdx < onboardSlides.length - 1) { onboardIdx++; showOnboardSlide(onboardIdx); }
+      else { /* Mulai → reset to slide 0 for demo */ onboardIdx = 0; showOnboardSlide(0); }
+    });
+  }
+  if (onboardSkip) {
+    onboardSkip.addEventListener('click', () => { onboardIdx = 0; showOnboardSlide(0); });
+  }
+
+  // ---- Chip toggle (filter & kategori laporan) ----
+  document.querySelectorAll('.chip').forEach(chip => {
+    chip.addEventListener('click', () => {
+      const group = chip.closest('[data-select]');
+      if (group && group.dataset.select === 'single') {
+        group.querySelectorAll('.chip').forEach(c => {
+          c.classList.remove('selected');
+          c.setAttribute('aria-pressed', 'false');
+        });
+        chip.classList.add('selected');
+        chip.setAttribute('aria-pressed', 'true');
+      } else {
+        const pressed = chip.classList.toggle('selected');
+        chip.setAttribute('aria-pressed', String(pressed));
+      }
+    });
+  });
+
+  // ---- Bottom nav: indikasi aktif visual ----
+  document.querySelectorAll('.bottom-nav').forEach(nav => {
+    nav.querySelectorAll('.nav-item').forEach(item => {
+      item.addEventListener('click', () => {
+        nav.querySelectorAll('.nav-item').forEach(i => i.removeAttribute('aria-current'));
+        item.setAttribute('aria-current', 'page');
+      });
+    });
+  });
+</script>
+</body>
+</html>

@@ -1,0 +1,253 @@
+/* ============================================================
+   DIGITALWISE — Design Tokens
+   Basis: Material Design 3 (Material You)
+   - Warna: semantic roles (bukan nama warna mentah), light + dark
+   - Seed: indigo (kepercayaan/keamanan) + violet (gamifikasi)
+   - Pasangan role dirancang memenuhi WCAG 2.2 AA (lihat check-contrast.mjs)
+   ============================================================ */
+
+:root {
+  /* ---------- COLOR: LIGHT SCHEME ---------- */
+  /* Primary — indigo: aksi utama, identitas keamanan */
+  --color-primary: #3e4bbe;            /* tone 40 — teks putih di atasnya AA */
+  --color-on-primary: #ffffff;
+  --color-primary-container: #dfe0ff;  /* tone 90 */
+  --color-on-primary-container: #000f5c; /* tone 10 */
+
+  /* Secondary — indigo keabuan: aksi sekunder, chip */
+  --color-secondary: #595d72;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #dde1f9;
+  --color-on-secondary-container: #161b2c;
+
+  /* Tertiary — violet: aksen gamifikasi (badge, poin, level) */
+  --color-tertiary: #744cb0;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #eddbff;
+  --color-on-tertiary-container: #2b0a57;
+
+  /* Success — status "aman", misi selesai */
+  --color-success: #1d6f3c;
+  --color-on-success: #ffffff;
+  --color-success-container: #a9f2b6;
+  --color-on-success-container: #00210c;
+
+  /* Warning — peringatan dini */
+  --color-warning: #8a5300;
+  --color-on-warning: #ffffff;
+  --color-warning-container: #ffddb0;
+  --color-on-warning-container: #2b1700;
+
+  /* Error — konten berbahaya, phishing, laporan */
+  --color-error: #b3261e;
+  --color-on-error: #ffffff;
+  --color-error-container: #f9dedc;
+  --color-on-error-container: #410e0b;
+
+  /* Surfaces — tangga tonal (pengganti elevasi-first) */
+  --color-surface: #fbf8fe;
+  --color-surface-dim: #dbd9e0;
+  --color-surface-bright: #fbf8fe;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #f5f2fa;
+  --color-surface-container: #efedf5;
+  --color-surface-container-high: #e9e7ef;
+  --color-surface-container-highest: #e4e1ea;
+
+  /* Teks & garis */
+  --color-on-surface: #1a1b21;          /* near-black, bukan #000 */
+  --color-on-surface-variant: #45464f;
+  --color-outline: #767680;             /* elemen UI ≥3:1 */
+  --color-outline-variant: #c6c5d0;     /* divider */
+
+  /* Inverse (snackbar, tooltip) */
+  --color-inverse-surface: #2f3036;
+  --color-inverse-on-surface: #f1f0f7;
+  --color-inverse-primary: #bdc3ff;
+
+  /* Scrim & state layers */
+  --state-hover: rgba(26, 27, 33, 0.08);
+  --state-focus: rgba(26, 27, 33, 0.12);
+  --state-pressed: rgba(26, 27, 33, 0.12);
+  --color-scrim: rgba(0, 0, 0, 0.45);
+
+  /* ---------- TYPOGRAPHY (M3 type scale, Plus Jakarta Sans) ---------- */
+  --font-family: "Plus Jakarta Sans", "Roboto", system-ui, -apple-system, sans-serif;
+  --font-display-lg: 700 36px/44px var(--font-family);   /* momen reward */
+  --font-headline-md: 700 24px/32px var(--font-family);  /* sapaan, judul layar */
+  --font-title-lg: 600 20px/28px var(--font-family);     /* judul section */
+  --font-title-md: 600 16px/24px var(--font-family);     /* judul kartu */
+  --font-body-lg: 400 16px/24px var(--font-family);      /* teks utama */
+  --font-body-md: 400 14px/20px var(--font-family);      /* teks kartu */
+  --font-label-lg: 600 14px/20px var(--font-family);     /* tombol */
+  --font-label-md: 600 12px/16px var(--font-family);     /* chip, nav */
+  --font-label-sm: 600 11px/16px var(--font-family);     /* badge mikro */
+
+  /* ---------- SPACING (skala 4pt) ---------- */
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-5: 20px;
+  --space-6: 24px;
+  --space-8: 32px;
+  --space-10: 40px;
+  --space-12: 48px;
+
+  /* ---------- SHAPE ---------- */
+  --radius-xs: 8px;    /* chip kecil */
+  --radius-sm: 12px;   /* input, kartu kecil */
+  --radius-md: 16px;   /* kartu */
+  --radius-lg: 20px;   /* kartu besar / sheet */
+  --radius-xl: 28px;   /* hero card */
+  --radius-full: 999px;/* tombol pill, nav indicator */
+
+  /* ---------- ELEVATION (M3, shadow dua lapis) ---------- */
+  --elevation-0: none;
+  --elevation-1: 0 1px 2px rgba(26, 27, 33, 0.30), 0 1px 3px 1px rgba(26, 27, 33, 0.15);
+  --elevation-2: 0 1px 2px rgba(26, 27, 33, 0.30), 0 2px 6px 2px rgba(26, 27, 33, 0.15);
+  --elevation-3: 0 4px 8px 3px rgba(26, 27, 33, 0.15), 0 1px 3px rgba(26, 27, 33, 0.30);
+
+  /* ---------- MOTION ---------- */
+  --motion-short: 150ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-medium: 300ms cubic-bezier(0.2, 0, 0, 1);
+  --motion-long: 500ms cubic-bezier(0.05, 0.7, 0.1, 1);
+
+  /* ---------- LAYOUT ---------- */
+  --touch-target: 48px;   /* min target sentuh M3 */
+  --touch-gap: 8px;
+  --nav-height: 72px;
+}
+
+/* ---------- DARK SCHEME (data-theme="dark") ---------- */
+[data-theme="dark"] {
+  --color-primary: #bdc3ff;
+  --color-on-primary: #1b2593;
+  --color-primary-container: #3641a9;
+  --color-on-primary-container: #dfe0ff;
+
+  --color-secondary: #c0c4dd;
+  --color-on-secondary: #2a3042;
+  --color-secondary-container: #414659;
+  --color-on-secondary-container: #dde1f9;
+
+  --color-tertiary: #d6baff;
+  --color-on-tertiary: #431c74;
+  --color-tertiary-container: #5b378d;
+  --color-on-tertiary-container: #eddbff;
+
+  --color-success: #8ed99b;
+  --color-on-success: #00391a;
+  --color-success-container: #005327;
+  --color-on-success-container: #a9f2b6;
+
+  --color-warning: #ffb95c;
+  --color-on-warning: #4a2800;
+  --color-warning-container: #6b3d00;
+  --color-on-warning-container: #ffddb0;
+
+  --color-error: #f2b8b5;
+  --color-on-error: #601410;
+  --color-error-container: #8c1d18;
+  --color-on-error-container: #f9dedc;
+
+  --color-surface: #131318;
+  --color-surface-dim: #131318;
+  --color-surface-bright: #39383f;
+  --color-surface-container-lowest: #0e0e13;
+  --color-surface-container-low: #1a1b20;
+  --color-surface-container: #1e1f24;
+  --color-surface-container-high: #292a2f;
+  --color-surface-container-highest: #34353a;
+
+  --color-on-surface: #e4e1ec;
+  --color-on-surface-variant: #c6c5d0;
+  --color-outline: #90909a;
+  --color-outline-variant: #45464f;
+
+  --color-inverse-surface: #e4e1ec;
+  --color-inverse-on-surface: #2f3036;
+  --color-inverse-primary: #3e4bbe;
+
+  --state-hover: rgba(228, 225, 236, 0.08);
+  --state-focus: rgba(228, 225, 236, 0.12);
+  --state-pressed: rgba(228, 225, 236, 0.12);
+  --color-scrim: rgba(0, 0, 0, 0.6);
+
+  --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.55), 0 1px 3px 1px rgba(0, 0, 0, 0.30);
+  --elevation-2: 0 1px 2px rgba(0, 0, 0, 0.55), 0 2px 6px 2px rgba(0, 0, 0, 0.30);
+  --elevation-3: 0 4px 8px 3px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.55);
+}
+
+/* Hormati preferensi sistem saat atribut data-theme tidak dipakai
+   (konsumen tokens.css tanpa JS). Mirror manual dari [data-theme="dark"]
+   di atas — JAGA SINKRON bila mengubah nilai dark. */
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme]) {
+    --color-primary: #bdc3ff;
+    --color-on-primary: #1b2593;
+    --color-primary-container: #3641a9;
+    --color-on-primary-container: #dfe0ff;
+
+    --color-secondary: #c0c4dd;
+    --color-on-secondary: #2a3042;
+    --color-secondary-container: #414659;
+    --color-on-secondary-container: #dde1f9;
+
+    --color-tertiary: #d6baff;
+    --color-on-tertiary: #431c74;
+    --color-tertiary-container: #5b378d;
+    --color-on-tertiary-container: #eddbff;
+
+    --color-success: #8ed99b;
+    --color-on-success: #00391a;
+    --color-success-container: #005327;
+    --color-on-success-container: #a9f2b6;
+
+    --color-warning: #ffb95c;
+    --color-on-warning: #4a2800;
+    --color-warning-container: #6b3d00;
+    --color-on-warning-container: #ffddb0;
+
+    --color-error: #f2b8b5;
+    --color-on-error: #601410;
+    --color-error-container: #8c1d18;
+    --color-on-error-container: #f9dedc;
+
+    --color-surface: #131318;
+    --color-surface-dim: #131318;
+    --color-surface-bright: #39383f;
+    --color-surface-container-lowest: #0e0e13;
+    --color-surface-container-low: #1a1b20;
+    --color-surface-container: #1e1f24;
+    --color-surface-container-high: #292a2f;
+    --color-surface-container-highest: #34353a;
+
+    --color-on-surface: #e4e1ec;
+    --color-on-surface-variant: #c6c5d0;
+    --color-outline: #90909a;
+    --color-outline-variant: #45464f;
+
+    --color-inverse-surface: #e4e1ec;
+    --color-inverse-on-surface: #2f3036;
+    --color-inverse-primary: #3e4bbe;
+
+    --state-hover: rgba(228, 225, 236, 0.08);
+    --state-focus: rgba(228, 225, 236, 0.12);
+    --state-pressed: rgba(228, 225, 236, 0.12);
+    --color-scrim: rgba(0, 0, 0, 0.6);
+
+    --elevation-1: 0 1px 2px rgba(0, 0, 0, 0.55), 0 1px 3px 1px rgba(0, 0, 0, 0.30);
+    --elevation-2: 0 1px 2px rgba(0, 0, 0, 0.55), 0 2px 6px 2px rgba(0, 0, 0, 0.30);
+    --elevation-3: 0 4px 8px 3px rgba(0, 0, 0, 0.30), 0 1px 3px rgba(0, 0, 0, 0.55);
+  }
+}
+
+/* Reduce Motion: matikan animasi dekoratif */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}

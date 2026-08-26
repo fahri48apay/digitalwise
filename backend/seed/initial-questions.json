@@ -1,0 +1,210 @@
+{
+  "quizzes": [
+    {
+      "id": "phishing-101",
+      "title": "Simulasi Phishing",
+      "description": "Kenali email & pesan phishing yang mencoba menipu kamu",
+      "category": "phishing",
+      "mode": "fixed",
+      "shuffleOptions": true,
+      "timePerQuestion": 30,
+      "passingScore": 60,
+      "xpReward": 100,
+      "badgeId": "phishing-detective",
+      "difficulty": "easy",
+      "questionIds": ["q1", "q2", "q3", "q4", "q5"],
+      "tags": ["phishing", "email", "keamanan"],
+      "totalAttempts": 0,
+      "averageScore": 0,
+      "status": "published",
+      "createdBy": "system"
+    }
+  ],
+  "questions": [
+    {
+      "id": "q1",
+      "quizId": "phishing-101",
+      "question": "Kamu dapat email dari 'Bank ABC' meminta kamu klik link untuk verifikasi akun. Apa yang harus kamu lakukan?",
+      "explanation": "Bank TIDAK PERNAH meminta data sensitif (password, PIN, OTP) melalui email. Selalu verifikasi langsung ke nomor resmi bank atau login ke aplikasi resmi bank.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Klik linknya untuk verifikasi",
+          "isCorrect": false,
+          "feedback": "❌ Jangan klik! Link tersebut bisa mengarah ke website palsu yang mencuri data kamu."
+        },
+        {
+          "id": "b",
+          "text": "Hubungi bank via nomor resmi yang kamu tahu",
+          "isCorrect": true,
+          "feedback": "✅ Benar! Selalu verifikasi langsung ke nomor resmi bank, bukan nomor di email."
+        },
+        {
+          "id": "c",
+          "text": "Forward email ke teman-teman",
+          "isCorrect": false,
+          "feedback": "❌ Tidak membantu, malah bisa menyebar bahaya ke teman kamu."
+        },
+        {
+          "id": "d",
+          "text": "Balas email tersebut untuk konfirmasi",
+          "isCorrect": false,
+          "feedback": "❌ Jangan balas! Email phishing sering minta kamu balas untuk verifikasi email aktif."
+        }
+      ],
+      "difficulty": "easy",
+      "xpReward": 20,
+      "correctCount": 0,
+      "totalAttempts": 0,
+      "status": "published"
+    },
+    {
+      "id": "q2",
+      "quizId": "phishing-101",
+      "question": "Teman kamu di WhatsApp mengirim link dengan pesan 'Wah liat ini, lucu banget!'. Setelah kamu klik, diminta login dengan akun Google. Apa yang terjadi?",
+      "explanation": "Ini adalah teknik phishing yang disebut 'social engineering'. Pelaku memanfaatkan kepercayaan kamu terhadap teman. Akun teman kamu mungkin sudah diretas.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Login saja, kan teman yang kirim",
+          "isCorrect": false,
+          "feedback": "❌ Bahaya! Akun teman sudah diretas. Link palsu ini mencuri akun Google kamu juga."
+        },
+        {
+          "id": "b",
+          "text": "Tanya teman dulu apakah benar dia yang kirim",
+          "isCorrect": true,
+          "feedback": "✅ Bagus! Konfirmasi langsung ke teman (bukan lewat WhatsApp) untuk memastikan."
+        },
+        {
+          "id": "c",
+          "text": "Klik link tapi jangan login",
+          "isCorrect": false,
+          "feedback": "❌ Tetap berisiko! Website phishing bisa men-download malware otomatis."
+        },
+        {
+          "id": "d",
+          "text": "Abaikan saja",
+          "isCorrect": false,
+          "feedback": "⚠️ Lebih baik konfirmasi ke teman, karena akun mereka mungkin sudah diretas."
+        }
+      ],
+      "difficulty": "easy",
+      "xpReward": 20,
+      "correctCount": 0,
+      "totalAttempts": 0,
+      "status": "published"
+    },
+    {
+      "id": "q3",
+      "quizId": "phishing-101",
+      "question": "Kamu menerima SMS: 'Selamat! Kamu memenangkan iPhone 15. Klik link untuk klaim hadiah'. Apa yang sebenarnya terjadi?",
+      "explanation": "Ini adalah penipuan (scam). Tidak ada undian yang menghubungi via SMS. Tujuannya adalah mencuri data pribadi atau meminta transfer uang.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Klik link untuk klaim hadiah",
+          "isCorrect": false,
+          "feedback": "❌ Penipuan! Tidak ada hadiah. Link akan membawa ke website palsu."
+        },
+        {
+          "id": "b",
+          "text": "Balas SMS untuk bertanya",
+          "isCorrect": false,
+          "feedback": "❌ Jangan balas! Pelaku akan tahu nomor kamu aktif dan terus mengganggu."
+        },
+        {
+          "id": "c",
+          "text": "Abaikan dan bloir nomornya",
+          "isCorrect": true,
+          "feedback": "✅ Tepat! Abaikan, blokir nomor, dan laporkan jika perlu."
+        },
+        {
+          "id": "d",
+          "text": "Share ke media sosial supaya orang lain tahu",
+          "isCorrect": false,
+          "feedback": "⚠️ Niat baik, tapi lebih baik langsung blokir saja untuk keamanan."
+        }
+      ],
+      "difficulty": "easy",
+      "xpReward": 20,
+      "correctCount": 0,
+      "totalAttempts": 0,
+      "status": "published"
+    },
+    {
+      "id": "q4",
+      "quizId": "phishing-101",
+      "question": "Website yang aman untuk transaksi online biasanya memiliki fitur apa?",
+      "explanation": "Website aman menggunakan HTTPS (ikon gembok di address bar) untuk mengenkripsi data. Selalu cek sebelum memasukkan data sensitif.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Tampilan yang bagus dan profesional",
+          "isCorrect": false,
+          "feedback": "❌ Tampilan bisa dibuat mirip. Yang penting adalah keamanan teknisnya."
+        },
+        {
+          "id": "b",
+          "text": "HTTPS dengan ikon gembok di address bar",
+          "isCorrect": true,
+          "feedback": "✅ Benar! HTTPS mengenkripsi data kamu. Ikon gembok menandakan koneksi aman."
+        },
+        {
+          "id": "c",
+          "text": "Banyak iklan dan pop-up",
+          "isCorrect": false,
+          "feedback": "❌ Justru waspada! Terlalu banyak iklan bisa jadi tanda website tidak profesional."
+        },
+        {
+          "id": "d",
+          "text": "Meminta banyak data pribadi",
+          "isCorrect": false,
+          "feedback": "❌ Website resmi tidak akan meminta data berlebihan yang tidak perlu."
+        }
+      ],
+      "difficulty": "easy",
+      "xpReward": 20,
+      "correctCount": 0,
+      "totalAttempts": 0,
+      "status": "published"
+    },
+    {
+      "id": "q5",
+      "quizId": "phishing-101",
+      "question": "Kamu menemukan WiFi gratis di café. Apa risiko menggunakan WiFi publik untuk login akun penting?",
+      "explanation": "WiFi publik bisa dimanfaatkan penjahat cyber untuk 'mencium' (sniffing) data yang kamu kirim. Hindari login akun penting di WiFi publik.",
+      "options": [
+        {
+          "id": "a",
+          "text": "Tidak ada risiko, WiFi gratis aman",
+          "isCorrect": false,
+          "feedback": "❌ Salah! WiFi publik bisa dimanfaatkan untuk mencuri data kamu."
+        },
+        {
+          "id": "b",
+          "text": "Data bisa dicuri karena tidak terenkripsi",
+          "isCorrect": true,
+          "feedback": "✅ Benar! WiFi publik rawan sniffing. Gunakan VPN atau data seluler untuk akun penting."
+        },
+        {
+          "id": "c",
+          "text": "Hanya lambat saja",
+          "isCorrect": false,
+          "feedback": "❌ Bukan hanya soal kecepatan, tapi keamanan data kamu."
+        },
+        {
+          "id": "d",
+          "text": "Aman asalkan pakai password yang kuat",
+          "isCorrect": false,
+          "feedback": "⚠️ Password kuat membantu, tapi data masih bisa dicuri saat transit di WiFi publik."
+        }
+      ],
+      "difficulty": "easy",
+      "xpReward": 20,
+      "correctCount": 0,
+      "totalAttempts": 0,
+      "status": "published"
+    }
+  ]
+}

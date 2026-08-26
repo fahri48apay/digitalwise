@@ -1,0 +1,28 @@
+{
+  "expo": {
+    "name": "DigitalWise",
+    "slug": "digitalwise",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "scheme": "digitalwise",
+    "userInterfaceStyle": "automatic",
+    "splash": {
+      "backgroundColor": "#3e4bbe"
+    },
+    "ios": {
+      "supportsTablet": true,
+      "bundleIdentifier": "com.digitalwise.app"
+    },
+    "android": {
+      "package": "com.digitalwise.app"
+    },
+    "web": {
+      "bundler": "metro"
+    },
+    "plugins": [
+      "expo-router",
+      "expo-asset"
+    ]
+  }
+}
