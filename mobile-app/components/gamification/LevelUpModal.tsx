@@ -1,6 +1,6 @@
 import { View, StyleSheet, Modal } from "react-native";
 import { Text, Card, Button } from "react-native-paper";
-import { LEVELS } from "@/lib/constants";
+import { LEVELS, COLORS } from "@/lib/constants";
 
 interface LevelUpModalProps {
   visible: boolean;
@@ -31,13 +31,13 @@ export function LevelUpModal({ visible, newLevel, onDismiss }: LevelUpModalProps
 }
 
 const styles = StyleSheet.create({
-  overlay: { flex: 1, backgroundColor: "rgba(0,0,0,0.6)", justifyContent: "center", alignItems: "center", padding: 24 },
+  overlay: { flex: 1, backgroundColor: COLORS.scrim, justifyContent: "center", alignItems: "center", padding: 24 },
   card: { width: "100%", maxWidth: 320 },
   content: { alignItems: "center", gap: 12, padding: 16 },
-  iconBox: { width: 96, height: 96, borderRadius: 48, backgroundColor: "#3e4bbe", justifyContent: "center", alignItems: "center" },
+  iconBox: { width: 96, height: 96, borderRadius: 48, backgroundColor: COLORS.primary, justifyContent: "center", alignItems: "center" },
   emoji: { fontSize: 48 },
   title: { fontWeight: "bold" },
-  level: { color: "#3e4bbe", fontWeight: "bold" },
-  levelTitle: { color: "#767680" },
+  level: { color: COLORS.primary, fontWeight: "bold" },
+  levelTitle: { color: COLORS.outline },
   btn: { marginTop: 12, width: "100%" },
 });

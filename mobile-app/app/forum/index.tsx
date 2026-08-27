@@ -1,9 +1,11 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, RefreshControl } from "react-native";
-import { Text, Card, Chip, Button, FAB } from "react-native-paper";
+import { View, StyleSheet, FlatList, RefreshControl, Pressable } from "react-native";
+import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
 import { useForum } from "@/hooks/useForum";
+import { useAppTheme } from "@/providers/ThemeProvider";
+import { DwCard, DwChip, DwIcon } from "@/components/ui";
+import { TYPOGRAPHY, SPACING, RADIUS, LAYOUT } from "@/lib/constants";
 
 const categoryLabels: Record<string, string> = {
   keamanan_siber: "Keamanan Siber",
@@ -12,21 +14,22 @@ const categoryLabels: Record<string, string> = {
   general: "Umum",
 };
 
-const categoryColors: Record<string, string> = {
-  keamanan_siber: "#ef4444",
-  privasi_data: "#3b82f6",
-  etika_digital: "#8b5cf6",
-  general: "#767680",
+const categoryColors: Record<string, keyof ReturnType<typeof useAppTheme>["colors"]> = {
+  keamanan_siber: "error",
+  privasi_data: "primary",
+  etika_digital: "tertiary",
+  general: "outline",
 };
 
 const postTypeIcons: Record<string, string> = {
-  question: "help-circle",
-  challenge: "flash",
-  poll: "bar-chart",
+  question: "help-circle-outline",
+  challenge: "flash-outline",
+  poll: "chart-bar",
 };
 
 export default function ForumScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const { getPosts, loading } = useForum();
   const [posts, setPosts] = useState<any[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<string | null>(null);
@@ -43,89 +46,212 @@ export default function ForumScreen() {
     fetchPosts(cat || undefined);
   };
 
+  const filters = [
+    { id: null, label: "Semua" },
+    ...Object.entries(categoryLabels).map(([id, label]) => ({ id, label })),
+  ];
+
   return (
-    <View style={styles.container}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Top bar */}
       <View style={styles.header}>
-        <Text variant="headlineSmall" style={{ fontWeight: "bold" }}>Forum Diskusi</Text>
+        <Pressable
+          onPress={() => router.back()}
+          style={[styles.backBtn, { backgroundColor: colors.surfaceContainer }]}
+          accessibilityLabel="Kembali"
+        >
+          <DwIcon name="arrow-left" size={24} color={colors.onSurface} />
+        </Pressable>
+        <Text style={[TYPOGRAPHY.titleLg, { color: colors.onSurface }]}>
+          Forum Diskusi
+        </Text>
       </View>
 
-      {/* Category Filter */}
+      {/* Category filter chips */}
       <FlatList
         horizontal
-        data={[{ id: null, label: "Semua" }, ...Object.entries(categoryLabels).map(([id, label]) => ({ id, label }))]}
+        data={filters}
         keyExtractor={(item) => item.id ?? "all"}
         showsHorizontalScrollIndicator={false}
         contentContainerStyle={styles.filterRow}
-        renderItem={({ item }) => (
-          <Chip
-            selected={selectedCategory === item.id}
-            onPress={() => handleCategorySelect(item.id)}
-            style={styles.filterChip}
-          >
-            {item.label}
-          </Chip>
-        )}
+        renderItem={({ item }) => {
+          const active = selectedCategory === item.id;
+          return (
+            <Pressable
+              onPress={() => handleCategorySelect(item.id)}
+              style={[
+                styles.filterChip,
+                {
+                  height: 36,
+                  borderRadius: 18,
+                  backgroundColor: active ? colors.primary : "transparent",
+                  borderWidth: active ? 0 : 1,
+                  borderColor: colors.outline,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  paddingHorizontal: SPACING.lg,
+                },
+              ]}
+              accessibilityRole="button"
+              accessibilityState={{ selected: active }}
+            >
+              <Text
+                style={[
+                  TYPOGRAPHY.labelMd,
+                  { color: active ? colors.onPrimary : colors.onSurfaceVariant },
+                ]}
+              >
+                {item.label}
+              </Text>
+            </Pressable>
+          );
+        }}
       />
 
-      {/* Posts List */}
+      {/* Posts list */}
       <FlatList
         data={posts}
         keyExtractor={(item) => item.id}
-        refreshControl={<RefreshControl refreshing={loading} onRefresh={() => fetchPosts(selectedCategory || undefined)} />}
-        contentContainerStyle={{ padding: 16, paddingBottom: 80 }}
+        refreshControl={
+          <RefreshControl
+            refreshing={loading}
+            onRefresh={() => fetchPosts(selectedCategory || undefined)}
+            tintColor={colors.primary}
+          />
+        }
+        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: 96 }}
         renderItem={({ item }) => {
-          const catColor = categoryColors[item.category] || "#767680";
-          const typeIcon = postTypeIcons[item.post_type] || "chatbubble";
+          const colorKey = categoryColors[item.category] ?? "outline";
+          const catColor = colors[colorKey];
+          const typeIcon = postTypeIcons[item.post_type] || "chatbubble-outline";
           return (
-            <Card style={[styles.card, item.is_pinned && styles.cardPinned]} onPress={() => router.push(`/forum/${item.id}`)}>
-              <Card.Content>
+            <DwCard
+              variant={item.is_pinned ? "outlined" : "filled"}
+              style={{
+                marginBottom: SPACING.md,
+                ...(item.is_pinned ? { borderColor: colors.warning, borderWidth: 1 } : {}),
+              }}
+            >
+              <Pressable onPress={() => router.push(`/forum/${item.id}`)}>
+                {/* Meta row */}
                 <View style={styles.cardMeta}>
-                  <Ionicons name={typeIcon as any} size={16} color={catColor} />
-                  <Chip compact style={{ backgroundColor: catColor + "20" }}>
-                    <Text style={{ color: catColor, fontSize: 10 }}>{categoryLabels[item.category] || item.category}</Text>
-                  </Chip>
-                  {item.is_pinned && <Chip compact style={{ backgroundColor: "#f59e0b20" }}><Text style={{ color: "#f59e0b", fontSize: 10 }}>Pinned</Text></Chip>}
+                  <DwIcon name={typeIcon as any} size={16} color={catColor} />
+                  <DwChip label={categoryLabels[item.category] || item.category} color={catColor} style={{ borderRadius: 12 }} />
+                  {item.is_pinned && (
+                    <DwChip label="Pinned" color={colors.warning} style={{ borderRadius: 12 }} />
+                  )}
                 </View>
-                <Text variant="titleMedium" style={{ fontWeight: "bold", marginTop: 8 }} numberOfLines={2}>{item.title}</Text>
-                <Text variant="bodySmall" style={{ color: "#767680", marginTop: 4 }} numberOfLines={2}>{item.content}</Text>
+                {/* Title */}
+                <Text
+                  style={[TYPOGRAPHY.titleMd, { color: colors.onSurface, marginTop: SPACING.sm }]}
+                  numberOfLines={2}
+                >
+                  {item.title}
+                </Text>
+                {/* Preview */}
+                <Text
+                  style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant, marginTop: SPACING.xs }]}
+                  numberOfLines={2}
+                >
+                  {item.content}
+                </Text>
+                {/* Footer */}
                 <View style={styles.cardFooter}>
-                  <Text variant="labelSmall" style={{ color: "#767680" }}>
+                  <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurfaceVariant }]}>
                     {item.profiles?.display_name || "Anonim"}
                   </Text>
                   <View style={styles.stats}>
-                    <Ionicons name="heart-outline" size={14} color="#767680" />
-                    <Text variant="labelSmall" style={{ color: "#767680" }}>{item.likes_count}</Text>
-                    <Ionicons name="chatbubble-outline" size={14} color="#767680" />
-                    <Text variant="labelSmall" style={{ color: "#767680" }}>{item.comment_count}</Text>
+                    <DwIcon name="heart-outline" size={14} color={colors.onSurfaceVariant} />
+                    <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurfaceVariant }]}>
+                      {item.likes_count}
+                    </Text>
+                    <DwIcon name="comment-outline" size={14} color={colors.onSurfaceVariant} />
+                    <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurfaceVariant }]}>
+                      {item.comment_count}
+                    </Text>
                   </View>
                 </View>
-              </Card.Content>
-            </Card>
+              </Pressable>
+            </DwCard>
           );
         }}
         ListEmptyComponent={
           <View style={styles.empty}>
-            <Ionicons name="chatbubbles-outline" size={48} color="#76768080" />
-            <Text variant="bodyLarge" style={{ color: "#767680", marginTop: 12 }}>Belum ada postingan</Text>
+            <DwIcon name="forum-outline" size={48} color={colors.outline} />
+            <Text style={[TYPOGRAPHY.bodyLg, { color: colors.onSurfaceVariant, marginTop: SPACING.lg }]}>
+              Belum ada postingan
+            </Text>
           </View>
         }
       />
 
-      <FAB icon="plus" style={styles.fab} onPress={() => router.push("/forum/new")} />
+      {/* FAB */}
+      <Pressable
+        onPress={() => router.push("/forum/new")}
+        style={[styles.fab, { backgroundColor: colors.primary }]}
+        accessibilityLabel="Buat postingan baru"
+      >
+        <DwIcon name="plus" size={24} color={colors.onPrimary} />
+      </Pressable>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe" },
-  header: { padding: 16, paddingBottom: 8 },
-  filterRow: { paddingHorizontal: 16, paddingBottom: 12 },
-  filterChip: { marginRight: 8 },
-  card: { marginBottom: 12 },
-  cardPinned: { borderColor: "#f59e0b", borderWidth: 1 },
-  cardMeta: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
-  cardFooter: { flexDirection: "row", justifyContent: "space-between", alignItems: "center", marginTop: 8 },
-  stats: { flexDirection: "row", alignItems: "center", gap: 4 },
-  empty: { alignItems: "center", paddingTop: 64 },
-  fab: { position: "absolute", right: 16, bottom: 16, backgroundColor: "#3e4bbe" },
+  container: { flex: 1 },
+  header: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.md,
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xl,
+    paddingBottom: SPACING.md,
+  },
+  backBtn: {
+    width: LAYOUT.touchTarget,
+    height: LAYOUT.touchTarget,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  filterRow: {
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.md,
+    gap: SPACING.sm,
+  },
+  filterChip: {
+    marginRight: 0,
+  },
+  card: {
+    marginBottom: SPACING.md,
+  },
+  cardMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    flexWrap: "wrap",
+  },
+  cardFooter: {
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginTop: SPACING.md,
+  },
+  stats: { flexDirection: "row", alignItems: "center", gap: SPACING.xs },
+  empty: { alignItems: "center", paddingTop: 80 },
+  fab: {
+    position: "absolute",
+    right: SPACING.lg,
+    bottom: SPACING.lg,
+    width: 56,
+    height: 56,
+    borderRadius: 16,
+    alignItems: "center",
+    justifyContent: "center",
+    elevation: 4,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.25,
+    shadowRadius: 4,
+  },
 });

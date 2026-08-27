@@ -1,5 +1,6 @@
 import { View, StyleSheet } from "react-native";
 import { Text, Card, Button, RadioButton } from "react-native-paper";
+import { COLORS } from "@/lib/constants";
 
 interface QuizCardProps {
   sender: string;
@@ -64,10 +65,10 @@ export function QuizCard({
 
 const styles = StyleSheet.create({
   card: { marginBottom: 16 },
-  meta: { color: "#767680" },
-  bodyCard: { marginTop: 12, backgroundColor: "#f0ecf4" },
+  meta: { color: COLORS.outline },
+  bodyCard: { marginTop: 12, backgroundColor: COLORS.surfaceContainer },
   question: { marginTop: 16, marginBottom: 8 },
   option: { marginBottom: 8 },
-  correct: { backgroundColor: "#10b98120" },
-  wrong: { backgroundColor: "#ef444420" },
+  correct: { backgroundColor: `${COLORS.success}20` },
+  wrong: { backgroundColor: `${COLORS.error}20` },
 });

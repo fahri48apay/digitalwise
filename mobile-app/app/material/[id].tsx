@@ -1,11 +1,22 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
-import { Text, Card, Button, Chip } from "react-native-paper";
+import { View, StyleSheet, ScrollView, Alert, Pressable, Dimensions } from "react-native";
+import { Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
-import { Ionicons } from "@expo/vector-icons";
+import { MaterialCommunityIcons } from "@expo/vector-icons";
+import { WebView } from "react-native-webview";
+import { useAppTheme } from "@/providers/ThemeProvider";
 import { useMaterials } from "@/hooks/useMaterials";
 import { useProfile } from "@/hooks/useProfile";
-import { CATEGORIES } from "@/lib/constants";
+import { DwCard, DwChip, DwButton, DwIcon } from "@/components/ui";
+import {
+  CATEGORIES,
+  SPACING,
+  RADIUS,
+  TYPOGRAPHY,
+  LAYOUT,
+  COLORS,
+  COLORS_DARK,
+} from "@/lib/constants";
 
 interface Material {
   id: string;
@@ -20,9 +31,37 @@ interface Material {
   duration_min: number;
 }
 
+const CATEGORY_COLORS_LIGHT: Record<string, string> = {
+  keamanan_siber: COLORS.primary,
+  privasi_data: COLORS.tertiary,
+  etika_digital: COLORS.success,
+};
+
+const CATEGORY_COLORS_DARK: Record<string, string> = {
+  keamanan_siber: COLORS_DARK.primary,
+  privasi_data: COLORS_DARK.tertiary,
+  etika_digital: COLORS_DARK.success,
+};
+
+const VIDEO_BG = "#2F3036";
+
+/** Extract YouTube video ID from various URL formats */
+function extractYouTubeId(url: string): string | null {
+  const patterns = [
+    /(?:youtube\.com\/watch\?.*v=|youtu\.be\/|youtube\.com\/embed\/|youtube\.com\/shorts\/)([a-zA-Z0-9_-]{11})/,
+    /^([a-zA-Z0-9_-]{11})$/,
+  ];
+  for (const p of patterns) {
+    const m = url.match(p);
+    if (m) return m[1];
+  }
+  return null;
+}
+
 export default function MaterialDetailScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
+  const { colors, isDark } = useAppTheme();
   const { getMaterial, getProgress, markComplete } = useMaterials();
   const { profile } = useProfile();
   const [material, setMaterial] = useState<Material | null>(null);
@@ -55,78 +94,211 @@ export default function MaterialDetailScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><Text>Memuat...</Text></View>;
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <MaterialCommunityIcons name="loading" size={32} color={colors.primary} />
+      </View>
+    );
   }
 
   if (!material) {
-    return <View style={styles.center}><Text>Materi tidak ditemukan</Text></View>;
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text
+          style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant }]}
+        >
+          Materi tidak ditemukan
+        </Text>
+      </View>
+    );
   }
 
-  const cat = CATEGORIES.find(c => c.id === material.category);
+  const catColor = isDark
+    ? CATEGORY_COLORS_DARK[material.category] || colors.primary
+    : CATEGORY_COLORS_LIGHT[material.category] || colors.primary;
+  const cat = CATEGORIES.find((c) => c.id === material.category);
 
   return (
-    <ScrollView style={styles.container}>
-      {/* Header */}
-      <View style={styles.header}>
-        <View style={styles.meta}>
-          <Ionicons name={material.content_type === "video" ? "play-circle" : "document-text"} size={20} color={cat?.color || "#3e4bbe"} />
-          <Chip compact style={{ backgroundColor: (cat?.color || "#3e4bbe") + "20" }}>
-            <Text style={{ color: cat?.color || "#3e4bbe", fontSize: 11 }}>{cat?.label || material.category}</Text>
-          </Chip>
-          <Text variant="labelSmall" style={{ color: "#767680" }}>{material.duration_min} menit</Text>
-          <Text variant="labelSmall" style={{ color: "#3e4bbe" }}>{material.xp_reward} XP</Text>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+    >
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backBtn}
+          accessibilityLabel="Kembali"
+        >
+          <DwIcon name="arrow-left" size={24} color={colors.onSurface} />
+        </Pressable>
+        <Text
+          style={[
+            TYPOGRAPHY.titleLg,
+            { color: colors.onSurface, fontWeight: "700" },
+          ]}
+        >
+          Detail Materi
+        </Text>
+      </View>
+
+      {/* Header section */}
+      <View style={styles.headerSection}>
+        {/* Meta chips */}
+        <View style={styles.metaRow}>
+          <DwChip label={cat?.label || material.category} color={catColor} />
+          <DwChip
+            label={`${material.duration_min} menit`}
+            color={colors.onSurfaceVariant}
+          />
+          <DwChip label={`${material.xp_reward} XP`} color={colors.primary} />
         </View>
-        <Text variant="headlineSmall" style={{ fontWeight: "bold", marginTop: 12 }}>{material.title}</Text>
+
+        {/* Title */}
+        <Text
+          style={[
+            TYPOGRAPHY.headlineMd,
+            { color: colors.onSurface, marginTop: SPACING.lg },
+          ]}
+        >
+          {material.title}
+        </Text>
+
+        {/* Description */}
         {material.description && (
-          <Text variant="bodyMedium" style={{ color: "#767680", marginTop: 8 }}>{material.description}</Text>
+          <Text
+            style={[
+              TYPOGRAPHY.bodyMd,
+              { color: colors.onSurfaceVariant, marginTop: SPACING.sm },
+            ]}
+          >
+            {material.description}
+          </Text>
         )}
       </View>
 
-      {/* Video (if available) */}
-      {material.video_url && (
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="labelLarge">Video</Text>
-            <Text variant="bodySmall" style={{ color: "#3e4bbe", marginTop: 4 }}>{material.video_url}</Text>
-          </Card.Content>
-        </Card>
-      )}
+      {/* Video embed */}
+      {material.video_url && (() => {
+        const ytId = extractYouTubeId(material.video_url);
+        if (!ytId) return null;
+        const screenW = Dimensions.get("window").width;
+        const videoH = Math.round((screenW - SPACING.md * 2) * 9 / 16);
+        return (
+          <View style={[styles.videoArea, { height: videoH }]}>
+            <WebView
+              source={{ uri: `https://www.youtube.com/embed/${ytId}?playsinline=1&rel=0` }}
+              style={[styles.webview, { height: videoH }]}
+              allowsFullscreenVideo
+              mediaPlaybackRequiresUserAction={false}
+              javaScriptEnabled
+            />
+          </View>
+        );
+      })()}
 
       {/* Key Takeaways */}
       {material.key_takeaways && material.key_takeaways.length > 0 && (
-        <Card style={styles.card}>
-          <Card.Content>
-            <Text variant="titleSmall" style={{ marginBottom: 12 }}>Poin Penting</Text>
-            {material.key_takeaways.map((point, i) => (
-              <View key={i} style={styles.takeaway}>
-                <Ionicons name="checkmark-circle" size={20} color="#22c55e" />
-                <Text variant="bodyMedium" style={{ flex: 1 }}>{point}</Text>
-              </View>
-            ))}
-          </Card.Content>
-        </Card>
+        <DwCard style={styles.takeawayCard}>
+          <Text
+            style={[TYPOGRAPHY.titleMd, { color: colors.onSurface }]}
+          >
+            Poin Penting
+          </Text>
+          {material.key_takeaways.map((point, i) => (
+            <View key={i} style={styles.takeawayItem}>
+              <MaterialCommunityIcons
+                name="check-circle"
+                size={20}
+                color={colors.success}
+              />
+              <Text
+                style={[
+                  TYPOGRAPHY.bodyMd,
+                  { color: colors.onSurface, flex: 1 },
+                ]}
+              >
+                {point}
+              </Text>
+            </View>
+          ))}
+        </DwCard>
       )}
 
-      {/* Complete Button */}
-      <View style={{ padding: 16 }}>
-        <Button
-          mode={completed ? "outlined" : "contained"}
+      {/* Complete button */}
+      <View style={styles.buttonSection}>
+        <DwButton
+          label={completed ? "Sudah Selesai" : "Selesaikan"}
           onPress={handleComplete}
-          icon={completed ? "checkmark" : "school"}
-          style={{ paddingVertical: 4 }}
-        >
-          {completed ? "Sudah Selesai" : "Tandai Selesai"}
-        </Button>
+          variant={completed ? "outlined" : "filled"}
+          icon={
+            <MaterialCommunityIcons
+              name={completed ? "check" : "school"}
+              size={20}
+              color={completed ? colors.primary : colors.onPrimary}
+            />
+          }
+          style={{ height: 48, borderRadius: 22 }}
+        />
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe" },
+  container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  header: { padding: 16 },
-  meta: { flexDirection: "row", alignItems: "center", gap: 8, flexWrap: "wrap" },
-  card: { marginHorizontal: 16, marginBottom: 12 },
-  takeaway: { flexDirection: "row", alignItems: "center", gap: 8, marginBottom: 8 },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    paddingHorizontal: LAYOUT.screenPadding,
+    paddingTop: SPACING.lg,
+    paddingBottom: SPACING.xs,
+  },
+  backBtn: {
+    width: LAYOUT.touchTarget,
+    height: LAYOUT.touchTarget,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  headerSection: {
+    paddingHorizontal: LAYOUT.screenPadding,
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    flexWrap: "wrap",
+  },
+  videoArea: {
+    width: "100%",
+    maxWidth: 372,
+    borderRadius: RADIUS.md,
+    marginHorizontal: LAYOUT.screenPadding,
+    marginTop: SPACING.lg,
+    alignSelf: "center",
+    overflow: "hidden",
+    backgroundColor: VIDEO_BG,
+  },
+  webview: {
+    width: "100%",
+    borderRadius: RADIUS.md,
+  },
+  takeawayCard: {
+    width: 372,
+    maxWidth: "100%",
+    marginHorizontal: LAYOUT.screenPadding,
+    marginTop: SPACING.lg,
+    alignSelf: "center",
+  },
+  takeawayItem: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    marginTop: SPACING.md,
+  },
+  buttonSection: {
+    paddingHorizontal: LAYOUT.screenPadding,
+    paddingTop: SPACING.xxl,
+    paddingBottom: 100,
+  },
 });

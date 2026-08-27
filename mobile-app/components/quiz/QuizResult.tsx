@@ -1,6 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { Text, Card, Button } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/lib/constants";
 
 interface QuizResultProps {
   score: number;
@@ -21,7 +22,7 @@ export function QuizResult({
 }: QuizResultProps) {
   const pct = Math.round((score / total) * 100);
   const icon = isPerfect ? "trophy" : pct >= 60 ? "checkmark-circle" : "close-circle";
-  const color = isPerfect ? "#10b981" : pct >= 60 ? "#3e4bbe" : "#ef4444";
+  const color = isPerfect ? COLORS.success : pct >= 60 ? COLORS.primary : COLORS.error;
   const title = isPerfect ? "Sempurna!" : pct >= 60 ? "Bagus!" : "Coba Lagi";
 
   return (
@@ -43,7 +44,7 @@ export function QuizResult({
 
           <View style={styles.scoreRow}>
             <Text variant="labelLarge">{score}/{total}</Text>
-            <Text variant="labelMedium" style={{ color: "#767680" }}>{pct}%</Text>
+            <Text variant="labelMedium" style={{ color: COLORS.outline }}>{pct}%</Text>
           </View>
 
           <View style={styles.xpBadge}>
@@ -61,14 +62,14 @@ export function QuizResult({
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fbf8fe", padding: 24 },
+  container: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: COLORS.background, padding: 24 },
   card: { width: "100%", maxWidth: 320 },
   content: { alignItems: "center", gap: 12, padding: 8 },
   iconBox: { width: 80, height: 80, borderRadius: 40, justifyContent: "center", alignItems: "center" },
   title: { fontWeight: "bold" },
-  subtitle: { color: "#767680", textAlign: "center" },
+  subtitle: { color: COLORS.outline, textAlign: "center" },
   scoreRow: { flexDirection: "row", gap: 8, alignItems: "center" },
-  xpBadge: { backgroundColor: "#3e4bbe20", borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 },
-  xpText: { color: "#3e4bbe", fontWeight: "bold" },
+  xpBadge: { backgroundColor: `${COLORS.primary}20`, borderRadius: 8, paddingHorizontal: 16, paddingVertical: 8 },
+  xpText: { color: COLORS.primary, fontWeight: "bold" },
   actions: { width: "100%", gap: 8 },
 });

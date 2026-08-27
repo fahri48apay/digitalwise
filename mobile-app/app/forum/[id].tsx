@@ -1,24 +1,37 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, FlatList, KeyboardAvoidingView, Platform, Image } from "react-native";
-import { Text, Card, TextInput, Button, Chip, IconButton } from "react-native-paper";
+import {
+  View,
+  StyleSheet,
+  FlatList,
+  KeyboardAvoidingView,
+  Platform,
+  Image,
+  Pressable,
+  TextInput,
+} from "react-native";
+import { Text } from "react-native-paper";
 import { useLocalSearchParams } from "expo-router";
 import { Ionicons } from "@expo/vector-icons";
 import { useForum } from "@/hooks/useForum";
 import { useProfile } from "@/hooks/useProfile";
 import { useUpload } from "@/hooks/useUpload";
+import { useAppTheme } from "@/providers/ThemeProvider";
+import { DwCard, DwChip, DwAvatar, DwIcon } from "@/components/ui";
+import { TYPOGRAPHY, SPACING, RADIUS } from "@/lib/constants";
 
 const categoryColors: Record<string, string> = {
-  keamanan_siber: "#ef4444",
-  privasi_data: "#3b82f6",
-  etika_digital: "#8b5cf6",
-  general: "#767680",
+  keamanan_siber: "error",
+  privasi_data: "primary",
+  etika_digital: "tertiary",
+  general: "outline",
 };
 
 export default function ForumPostScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
+  const { colors } = useAppTheme();
   const { getPost, getComments, createComment, likePost } = useForum();
   const { profile } = useProfile();
-  const { pickImage, takePhoto, upload, loading: uploading } = useUpload();
+  const { pickImage, upload, loading: uploading } = useUpload();
   const [post, setPost] = useState<any>(null);
   const [comments, setComments] = useState<any[]>([]);
   const [newComment, setNewComment] = useState("");
@@ -53,7 +66,10 @@ export default function ForumPostScreen() {
       attachment_url: attachmentUrl,
     });
     if (data) {
-      setComments(prev => [...prev, { ...data, profiles: { display_name: profile.display_name, username: profile.username } }]);
+      setComments((prev) => [
+        ...prev,
+        { ...data, profiles: { display_name: profile.display_name, username: profile.username } },
+      ]);
       setNewComment("");
       setCommentImage(null);
     }
@@ -62,7 +78,7 @@ export default function ForumPostScreen() {
   const handleLike = async () => {
     if (!id) return;
     await likePost(id);
-    setPost((prev: any) => prev ? { ...prev, likes_count: prev.likes_count + 1 } : prev);
+    setPost((prev: any) => (prev ? { ...prev, likes_count: prev.likes_count + 1 } : prev));
   };
 
   const handlePickImage = async () => {
@@ -73,100 +89,235 @@ export default function ForumPostScreen() {
   };
 
   if (loading) {
-    return <View style={styles.center}><Text>Memuat...</Text></View>;
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant }]}>Memuat...</Text>
+      </View>
+    );
   }
 
   if (!post) {
-    return <View style={styles.center}><Text>Post tidak ditemukan</Text></View>;
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant }]}>Post tidak ditemukan</Text>
+      </View>
+    );
   }
 
+  const colorKey = categoryColors[post.category] ?? "outline";
+  const postCatColor = (colors as any)[colorKey] || colors.outline;
+
   return (
-    <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === "ios" ? "padding" : undefined}>
-      {/* Post */}
+    <KeyboardAvoidingView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      behavior={Platform.OS === "ios" ? "padding" : undefined}
+    >
       <FlatList
         data={comments}
         keyExtractor={(item) => item.id}
         ListHeaderComponent={
-          <Card style={styles.postCard}>
-            <Card.Content>
-              <View style={styles.meta}>
-                <Ionicons name="person-circle" size={20} color="#3e4bbe" />
-                <Text variant="labelMedium">{post.profiles?.display_name || "Anonim"}</Text>
-                <Chip compact style={{ backgroundColor: (categoryColors[post.category] || "#767680") + "20" }}>
-                  <Text style={{ color: categoryColors[post.category] || "#767680", fontSize: 10 }}>{post.category}</Text>
-                </Chip>
+          <DwCard style={styles.postCard}>
+            {/* Author row */}
+            <View style={styles.authorRow}>
+              <DwAvatar
+                uri={post.profiles?.avatar_url}
+                name={post.profiles?.display_name || "Anonim"}
+                size={32}
+              />
+              <View style={{ flex: 1 }}>
+                <Text style={[TYPOGRAPHY.labelLg, { color: colors.onSurface }]}>
+                  {post.profiles?.display_name || "Anonim"}
+                </Text>
               </View>
-              <Text variant="titleLarge" style={{ fontWeight: "bold", marginTop: 8 }}>{post.title}</Text>
-              <Text variant="bodyMedium" style={{ marginTop: 8 }}>{post.content}</Text>
-              {post.attachment_url && (
-                <Image source={{ uri: post.attachment_url }} style={styles.postImage} resizeMode="cover" />
-              )}
-              <View style={styles.actions}>
-                <Button compact icon="heart" onPress={handleLike}>{post.likes_count}</Button>
-                <Button compact icon="chatbubble">{comments.length}</Button>
+              <DwChip label={post.category} color={postCatColor} style={{ borderRadius: 12 }} />
+            </View>
+
+            {/* Title */}
+            <Text style={[TYPOGRAPHY.titleLg, { color: colors.onSurface, marginTop: SPACING.md }]}>
+              {post.title}
+            </Text>
+
+            {/* Content */}
+            <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant, marginTop: SPACING.sm }]}>
+              {post.content}
+            </Text>
+
+            {/* Attachment */}
+            {post.attachment_url && (
+              <Image
+                source={{ uri: post.attachment_url }}
+                style={styles.postImage}
+                resizeMode="cover"
+              />
+            )}
+
+            {/* Actions */}
+            <View style={styles.actions}>
+              <Pressable onPress={handleLike} style={styles.actionBtn} accessibilityLabel="Suka">
+                <Ionicons name="heart-outline" size={18} color={colors.onSurfaceVariant} />
+                <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurfaceVariant }]}>
+                  {post.likes_count}
+                </Text>
+              </Pressable>
+              <View style={styles.actionBtn}>
+                <Ionicons name="chatbubble-outline" size={18} color={colors.onSurfaceVariant} />
+                <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurfaceVariant }]}>
+                  {comments.length}
+                </Text>
               </View>
-            </Card.Content>
-          </Card>
+            </View>
+          </DwCard>
         }
         renderItem={({ item }) => (
-          <Card style={[styles.commentCard, item.is_mentor_answer && styles.mentorCard]}>
-            <Card.Content>
-              <View style={styles.commentMeta}>
-                <Text variant="labelMedium">{item.profiles?.display_name || "Anonim"}</Text>
-                {item.is_mentor_answer && <Chip compact style={{ backgroundColor: "#22c55e20" }}><Text style={{ color: "#22c55e", fontSize: 10 }}>Jawaban Mentor</Text></Chip>}
-              </View>
-              <Text variant="bodyMedium" style={{ marginTop: 4 }}>{item.content}</Text>
-              {item.attachment_url && (
-                <Image source={{ uri: item.attachment_url }} style={styles.commentImage} resizeMode="cover" />
+          <DwCard variant="elevated" style={styles.commentCard}>
+            {/* Comment author */}
+            <View style={styles.commentMeta}>
+              <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurface }]}>
+                {item.profiles?.display_name || "Anonim"}
+              </Text>
+              {item.is_mentor_answer && (
+                <DwChip
+                  label="Jawaban Mentor"
+                  color={colors.success}
+                  style={{ borderRadius: 12 }}
+                />
               )}
-            </Card.Content>
-          </Card>
+            </View>
+            {/* Comment content */}
+            <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant, marginTop: SPACING.xs }]}>
+              {item.content}
+            </Text>
+            {/* Comment attachment */}
+            {item.attachment_url && (
+              <Image
+                source={{ uri: item.attachment_url }}
+                style={styles.commentImage}
+                resizeMode="cover"
+              />
+            )}
+          </DwCard>
         )}
-        contentContainerStyle={{ padding: 16, paddingBottom: 8 }}
+        contentContainerStyle={{ padding: SPACING.lg, paddingBottom: SPACING.xl }}
       />
 
-      {/* Comment Input */}
-      <View style={styles.inputContainer}>
-        {commentImage && (
-          <View style={styles.imagePreview}>
-            <Image source={{ uri: commentImage }} style={styles.previewImage} />
-            <IconButton icon="close-circle" size={16} iconColor="#ef4444" onPress={() => setCommentImage(null)} />
-          </View>
-        )}
-        <View style={styles.inputRow}>
-          <IconButton icon="image" size={20} onPress={handlePickImage} />
-          <TextInput
-            value={newComment}
-            onChangeText={setNewComment}
-            placeholder="Tulis komentar..."
-            mode="outlined"
-            style={styles.input}
-            dense
-          />
-          <Button mode="contained" onPress={handleComment} disabled={(!newComment.trim() && !commentImage) || uploading} style={styles.sendBtn}>
-            Kirim
-          </Button>
+      {/* Comment input bar */}
+      {commentImage && (
+        <View style={[styles.imagePreview, { backgroundColor: colors.surface }]}>
+          <Image source={{ uri: commentImage }} style={styles.previewImage} />
+          <Pressable onPress={() => setCommentImage(null)} accessibilityLabel="Hapus gambar">
+            <Ionicons name="close-circle" size={16} color={colors.error} />
+          </Pressable>
         </View>
+      )}
+      <View style={[styles.inputBar, { backgroundColor: colors.surface, borderTopColor: colors.outlineVariant }]}>
+        <Pressable onPress={handlePickImage} style={styles.attachBtn} accessibilityLabel="Lampirkan gambar">
+          <Ionicons name="image-outline" size={22} color={colors.onSurfaceVariant} />
+        </Pressable>
+        <TextInput
+          value={newComment}
+          onChangeText={setNewComment}
+          placeholder="Tulis komentar..."
+          placeholderTextColor={colors.outline}
+          style={[styles.textInput, TYPOGRAPHY.bodyMd, { color: colors.onSurface }]}
+        />
+        <Pressable
+          onPress={handleComment}
+          disabled={(!newComment.trim() && !commentImage) || uploading}
+          style={[
+            styles.sendBtn,
+            {
+              backgroundColor:
+                newComment.trim() || commentImage ? colors.primary : colors.surfaceContainerHigh,
+            },
+          ]}
+          accessibilityLabel="Kirim komentar"
+        >
+          <Text
+            style={[
+              TYPOGRAPHY.labelMd,
+              {
+                color:
+                  newComment.trim() || commentImage ? colors.onPrimary : colors.onSurfaceVariant,
+              },
+            ]}
+          >
+            Kirim
+          </Text>
+        </Pressable>
       </View>
     </KeyboardAvoidingView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe" },
+  container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  postCard: { marginBottom: 12 },
-  meta: { flexDirection: "row", alignItems: "center", gap: 8 },
-  postImage: { width: "100%", height: 200, borderRadius: 8, marginTop: 12 },
-  actions: { flexDirection: "row", marginTop: 12 },
-  commentCard: { marginBottom: 8 },
-  mentorCard: { borderColor: "#22c55e", borderWidth: 1 },
-  commentMeta: { flexDirection: "row", alignItems: "center", gap: 8 },
-  commentImage: { width: "100%", height: 120, borderRadius: 8, marginTop: 8 },
-  inputContainer: { backgroundColor: "#fff", borderTopWidth: 1, borderTopColor: "#e5e7eb", padding: 8 },
-  imagePreview: { flexDirection: "row", alignItems: "center", paddingHorizontal: 8, paddingBottom: 4 },
-  previewImage: { width: 48, height: 48, borderRadius: 8 },
-  inputRow: { flexDirection: "row", alignItems: "center", gap: 4 },
-  input: { flex: 1 },
-  sendBtn: { marginTop: 0 },
+  postCard: { marginBottom: SPACING.md },
+  authorRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+  },
+  postImage: {
+    width: "100%",
+    height: 200,
+    borderRadius: RADIUS.sm,
+    marginTop: SPACING.md,
+  },
+  actions: {
+    flexDirection: "row",
+    marginTop: SPACING.md,
+    gap: SPACING.xl,
+  },
+  actionBtn: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.xs,
+  },
+  commentCard: { marginBottom: SPACING.sm, borderRadius: RADIUS.sm },
+  commentMeta: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+  },
+  commentImage: {
+    width: "100%",
+    height: 120,
+    borderRadius: RADIUS.xs,
+    marginTop: SPACING.sm,
+  },
+  imagePreview: {
+    flexDirection: "row",
+    alignItems: "center",
+    gap: SPACING.sm,
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xs,
+  },
+  previewImage: { width: 48, height: 48, borderRadius: RADIUS.xs },
+  inputBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    borderTopWidth: 1,
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: SPACING.sm,
+    gap: SPACING.xs,
+  },
+  attachBtn: {
+    width: 40,
+    height: 40,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  textInput: {
+    flex: 1,
+    minHeight: 40,
+    paddingHorizontal: SPACING.md,
+  },
+  sendBtn: {
+    height: 36,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+    paddingHorizontal: SPACING.lg,
+  },
 });

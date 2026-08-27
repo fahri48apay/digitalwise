@@ -1,16 +1,20 @@
 import { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
-import { Text, Card, Button, Chip } from "react-native-paper";
+import { View, StyleSheet, ScrollView, Pressable, Alert } from "react-native";
+import { Text } from "react-native-paper";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { supabase } from "@/lib/supabase";
 import { useProfile } from "@/hooks/useProfile";
 import { useXP } from "@/hooks/useXP";
+import { useAppTheme } from "@/providers/ThemeProvider";
+import { DwButton, DwCard, DwChip, DwIcon } from "@/components/ui";
+import { TYPOGRAPHY, SPACING, RADIUS, LAYOUT } from "@/lib/constants";
 
 export default function MissionScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { profile } = useProfile();
   const { claimXP } = useXP();
+  const { colors } = useAppTheme();
   const [mission, setMission] = useState<any>(null);
   const [completed, setCompleted] = useState(false);
 
@@ -44,30 +48,107 @@ export default function MissionScreen() {
     }
   }
 
-  if (!mission) return <View style={styles.center}><Text>Memuat...</Text></View>;
+  if (!mission) {
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant }]}>Memuat...</Text>
+      </View>
+    );
+  }
 
   return (
-    <ScrollView style={styles.container}>
-      <Card style={styles.card}>
-        <Card.Content>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        <Pressable
+          onPress={() => router.back()}
+          style={styles.backBtn}
+          accessibilityLabel="Kembali"
+        >
+          <DwIcon name="arrow-left" size={24} color={colors.onSurface} />
+        </Pressable>
+        <Text style={[TYPOGRAPHY.titleLg, { color: colors.onSurface, flex: 1 }]}>
+          Detail Misi
+        </Text>
+      </View>
+
+      <ScrollView contentContainerStyle={styles.scroll}>
+        <DwCard style={styles.card}>
+          {/* Chips row */}
           <View style={styles.chips}>
-            <Chip compact>{mission.mission_type}</Chip>
-            <Chip compact style={{ backgroundColor: "#10b98120" }}>+{mission.xp_reward} XP</Chip>
+            <DwChip
+              label={mission.mission_type}
+              style={{ height: 36, borderRadius: 18 }}
+            />
+            <DwChip
+              label={`+${mission.xp_reward} XP`}
+              color={colors.success}
+              style={{
+                height: 36,
+                borderRadius: 18,
+                backgroundColor: colors.successContainer,
+              }}
+            />
           </View>
-          <Text variant="headlineSmall" style={{ marginTop: 12 }}>{mission.title}</Text>
-          {mission.description && <Text variant="bodyMedium" style={{ color: "#767680", marginTop: 8 }}>{mission.description}</Text>}
-          <Button mode="contained" onPress={handleStart} disabled={completed} style={{ marginTop: 24 }}>
-            {completed ? "Selesai" : "Mulai Misi"}
-          </Button>
-        </Card.Content>
-      </Card>
-    </ScrollView>
+
+          {/* Title */}
+          <Text style={[TYPOGRAPHY.headlineMd, { color: colors.onSurface, marginTop: SPACING.md }]}>
+            {mission.title}
+          </Text>
+
+          {/* Description */}
+          {mission.description && (
+            <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant, marginTop: SPACING.sm }]}>
+              {mission.description}
+            </Text>
+          )}
+
+          {/* Divider */}
+          <View style={[styles.divider, { backgroundColor: colors.outlineVariant }]} />
+
+          {/* Action button */}
+          {completed ? (
+            <DwButton
+              label="Selesai"
+              variant="outlined"
+              disabled
+              style={{ height: 48, borderRadius: RADIUS.full }}
+            />
+          ) : (
+            <DwButton
+              label="Mulai Misi"
+              onPress={handleStart}
+              style={{ height: 48, borderRadius: RADIUS.full }}
+            />
+          )}
+        </DwCard>
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe" },
+  container: { flex: 1 },
   center: { flex: 1, justifyContent: "center", alignItems: "center" },
-  card: { margin: 16 },
-  chips: { flexDirection: "row", gap: 8 },
+  topBar: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: SPACING.lg,
+    paddingTop: SPACING.xxxl,
+    paddingBottom: SPACING.md,
+  },
+  backBtn: {
+    width: LAYOUT.touchTarget,
+    height: LAYOUT.touchTarget,
+    justifyContent: "center",
+    alignItems: "center",
+    marginRight: SPACING.sm,
+  },
+  scroll: {
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xxxxl,
+  },
+  card: { width: 372, alignSelf: "center" },
+  chips: { flexDirection: "row", gap: SPACING.sm },
+  divider: { height: 1, marginVertical: SPACING.lg },
 });

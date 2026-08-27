@@ -1,5 +1,6 @@
 import { StyleSheet, View } from "react-native";
 import { Text } from "react-native-paper";
+import { COLORS } from "@/lib/constants";
 
 interface XPBadgeProps {
   amount: number;
@@ -17,6 +18,6 @@ export function XPBadge({ amount, show = false }: XPBadgeProps) {
 }
 
 const styles = StyleSheet.create({
-  badge: { backgroundColor: "#10b98120", borderRadius: 12, paddingHorizontal: 12, paddingVertical: 4 },
-  text: { color: "#10b981", fontWeight: "bold", fontSize: 13 },
+  badge: { backgroundColor: `${COLORS.success}20`, borderRadius: 12, paddingHorizontal: 12, paddingVertical: 4 },
+  text: { color: COLORS.success, fontWeight: "bold", fontSize: 13 },
 });

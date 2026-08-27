@@ -1,14 +1,19 @@
 import { useState } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
-import { Text, TextInput, Button, Card } from "react-native-paper";
+import { View, ScrollView, Pressable, StyleSheet, Alert } from "react-native";
+import { Text } from "react-native-paper";
 import { useRouter, Link } from "expo-router";
 import { supabase } from "@/lib/supabase";
+import { DwButton, DwInput } from "@/components/ui";
+import { useAppTheme } from "@/providers/ThemeProvider";
+import { SPACING, TYPOGRAPHY } from "@/lib/constants";
 
 export default function RegisterScreen() {
   const router = useRouter();
+  const { colors } = useAppTheme();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPass, setShowPass] = useState(false);
   const [loading, setLoading] = useState(false);
 
   async function handleRegister() {
@@ -32,59 +37,114 @@ export default function RegisterScreen() {
   }
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.header}>
-        <Text variant="headlineLarge" style={styles.title}>DigitalWise</Text>
-        <Text variant="bodyLarge" style={styles.subtitle}>Buat akun baru</Text>
+    <ScrollView
+      style={[styles.container, { backgroundColor: colors.background }]}
+      contentContainerStyle={styles.content}
+    >
+      {/* ── Logo Shield ── */}
+      <View style={styles.hero}>
+        <View style={[styles.shield, { backgroundColor: colors.primaryContainer }]}>
+          <View style={[styles.shieldInner, { backgroundColor: colors.primary }]}>
+            <View style={[styles.shieldCheck, { borderColor: colors.onPrimary }]} />
+          </View>
+        </View>
       </View>
 
-      <Card style={styles.card}>
-        <Card.Content style={styles.cardContent}>
-          <TextInput
-            label="Username"
-            value={username}
-            onChangeText={setUsername}
-            mode="outlined"
-            autoCapitalize="none"
-          />
-          <TextInput
-            label="Email"
-            value={email}
-            onChangeText={setEmail}
-            mode="outlined"
-            keyboardType="email-address"
-            autoCapitalize="none"
-          />
-          <TextInput
-            label="Password"
-            value={password}
-            onChangeText={setPassword}
-            mode="outlined"
-            secureTextEntry
-          />
-          <Button
-            mode="contained"
-            onPress={handleRegister}
-            loading={loading}
-            disabled={loading}
-          >
-            Daftar
-          </Button>
-          <Link href="/(auth)/login" asChild>
-            <Button mode="text">Sudah punya akun? Masuk</Button>
-          </Link>
-        </Card.Content>
-      </Card>
+      {/* ── Wordmark ── */}
+      <Text style={[TYPOGRAPHY.displayLg, styles.wordmark]}>
+        Digital
+        <Text style={{ color: colors.primary }}>Wise</Text>
+      </Text>
+
+      <Text
+        style={[
+          TYPOGRAPHY.bodyMd,
+          { color: colors.onSurfaceVariant, textAlign: "center", maxWidth: 280 },
+        ]}
+      >
+        Buat akun dan mulai perjalanan digitalmu.
+      </Text>
+
+      {/* ── Form ── */}
+      <View style={styles.form}>
+        <DwInput
+          label="Nama pengguna"
+          placeholder="username"
+          value={username}
+          onChangeText={setUsername}
+          autoCapitalize="none"
+        />
+
+        <DwInput
+          label="Email"
+          placeholder="nama@contoh.com"
+          value={email}
+          onChangeText={setEmail}
+          keyboardType="email-address"
+          autoCapitalize="none"
+          trailingIcon="mail"
+        />
+
+        <DwInput
+          label="Kata sandi"
+          placeholder="Minimal 8 karakter"
+          value={password}
+          onChangeText={setPassword}
+          secureTextEntry={!showPass}
+          trailingIcon={showPass ? "eye-off" : "eye"}
+          onTrailingIconPress={() => setShowPass(!showPass)}
+        />
+
+        <DwButton label="Daftar" onPress={handleRegister} loading={loading} disabled={loading} />
+
+        <Link href="/(auth)/login" asChild>
+          <Pressable>
+            <Text
+              style={[
+                TYPOGRAPHY.labelLg,
+                { color: colors.primary, textAlign: "center", marginTop: SPACING.lg },
+              ]}
+            >
+              Sudah punya akun? Masuk
+            </Text>
+          </Pressable>
+        </Link>
+      </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe" },
-  content: { padding: 24, justifyContent: "center", flexGrow: 1 },
-  header: { alignItems: "center", marginBottom: 32 },
-  title: { fontWeight: "bold", color: "#3e4bbe" },
-  subtitle: { color: "#767680", marginTop: 4 },
-  card: { elevation: 2 },
-  cardContent: { gap: 16, padding: 8 },
+  container: { flex: 1 },
+  content: { alignItems: "center", paddingVertical: SPACING.xxxl, paddingHorizontal: SPACING.xxl },
+  hero: { marginTop: SPACING.xxxxl, marginBottom: SPACING.lg, alignItems: "center" },
+  shield: {
+    width: 96,
+    height: 96,
+    borderRadius: 24,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shieldInner: {
+    width: 80,
+    height: 80,
+    borderRadius: 20,
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  shieldCheck: {
+    width: 27,
+    height: 19,
+    borderWidth: 5,
+    borderRadius: 4,
+    borderTopWidth: 0,
+    borderLeftWidth: 0,
+    transform: [{ rotate: "45deg" }],
+  },
+  wordmark: {
+    fontWeight: "800",
+    letterSpacing: -0.02,
+    marginBottom: SPACING.sm,
+  },
+  form: { width: "100%", gap: SPACING.lg, marginTop: SPACING.xxxxl },
 });

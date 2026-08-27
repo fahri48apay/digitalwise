@@ -1,6 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { Text } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/lib/constants";
 
 interface StreakBadgeProps {
   count: number;
@@ -19,13 +20,13 @@ export function StreakBadge({ count, size = "md" }: StreakBadgeProps) {
 
   return (
     <View style={[styles.badge, { paddingHorizontal: s.px, paddingVertical: s.py }]}>
-      <Ionicons name="flame" size={s.icon} color="#f59e0b" />
+      <Ionicons name="flame" size={s.icon} color={COLORS.warning} />
       <Text style={[styles.text, { fontSize: s.text }]}>{count}</Text>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  badge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: "#f59e0b20", borderRadius: 12 },
-  text: { color: "#f59e0b", fontWeight: "bold" },
+  badge: { flexDirection: "row", alignItems: "center", gap: 4, backgroundColor: `${COLORS.warning}20`, borderRadius: 12 },
+  text: { color: COLORS.warning, fontWeight: "bold" },
 });

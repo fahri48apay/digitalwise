@@ -1,7 +1,8 @@
 import { useEffect, useState } from "react";
-import { View, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
-import { Text, Card } from "react-native-paper";
-import { Ionicons } from "@expo/vector-icons";
+import { Text, View, StyleSheet, ScrollView, useWindowDimensions } from "react-native";
+import { DwCard, DwIcon } from "@/components/ui";
+import { useAppTheme } from "@/providers/ThemeProvider";
+import { TYPOGRAPHY, SPACING, RADIUS } from "@/lib/constants";
 import { supabase } from "@/lib/supabase";
 
 interface Stats {
@@ -13,7 +14,25 @@ interface Stats {
   totalForumPosts: number;
 }
 
+interface StatCard {
+  icon: string;
+  label: string;
+  value: number;
+  fgKey: string;
+  bgKey: string;
+}
+
+const STAT_CATEGORIES: StatCard[] = [
+  { icon: "account-group", label: "Total User", value: 0, fgKey: "primary", bgKey: "primaryContainer" },
+  { icon: "book-open-variant", label: "Materi", value: 0, fgKey: "success", bgKey: "successContainer" },
+  { icon: "frequently-asked-questions", label: "Quiz", value: 0, fgKey: "warning", bgKey: "warningContainer" },
+  { icon: "flag", label: "Misi", value: 0, fgKey: "tertiary", bgKey: "tertiaryContainer" },
+  { icon: "file-document", label: "Laporan", value: 0, fgKey: "error", bgKey: "errorContainer" },
+  { icon: "forum", label: "Forum Posts", value: 0, fgKey: "primary", bgKey: "primaryContainer" },
+];
+
 export default function AdminDashboard() {
+  const { colors } = useAppTheme();
   const { width } = useWindowDimensions();
   const isMobile = width < 768;
   const [stats, setStats] = useState<Stats>({
@@ -47,45 +66,69 @@ export default function AdminDashboard() {
     fetchStats();
   }, []);
 
-  const statCards = [
-    { icon: "people", label: "Total User", value: stats.totalUsers, color: "#3e4bbe" },
-    { icon: "book", label: "Materi", value: stats.totalMaterials, color: "#22c55e" },
-    { icon: "help-circle", label: "Quiz", value: stats.totalQuizzes, color: "#f59e0b" },
-    { icon: "flag", label: "Misi", value: stats.totalMissions, color: "#8b5cf6" },
-    { icon: "document-text", label: "Laporan", value: stats.totalReports, color: "#ef4444" },
-    { icon: "chatbubbles", label: "Forum Posts", value: stats.totalForumPosts, color: "#3b82f6" },
-  ];
+  const values: Record<string, number> = {
+    totalUsers: stats.totalUsers,
+    totalMaterials: stats.totalMaterials,
+    totalQuizzes: stats.totalQuizzes,
+    totalMissions: stats.totalMissions,
+    totalReports: stats.totalReports,
+    totalForumPosts: stats.totalForumPosts,
+  };
+
+  const statCards = STAT_CATEGORIES.map((card, i) => ({
+    ...card,
+    value: Object.values(values)[i],
+  }));
 
   return (
-    <ScrollView style={styles.container}>
-      <Text variant="headlineSmall" style={styles.title}>Dashboard Admin</Text>
+    <ScrollView style={[styles.container, { backgroundColor: colors.background }]}>
+      <Text style={[TYPOGRAPHY.titleLg, { color: colors.onSurface, marginBottom: SPACING.lg }]}>
+        Dashboard Admin
+      </Text>
 
       <View style={[styles.grid, isMobile && styles.gridMobile]}>
-        {statCards.map((stat) => (
-          <Card key={stat.label} style={[styles.statCard, isMobile && styles.statCardMobile]}>
-            <Card.Content style={styles.statContent}>
-              <View style={[styles.iconBox, { backgroundColor: stat.color + "20" }]}>
-                <Ionicons name={stat.icon as any} size={24} color={stat.color} />
+        {statCards.map((stat) => {
+          const fg = colors[stat.fgKey as keyof typeof colors] as string;
+          const bg = colors[stat.bgKey as keyof typeof colors] as string;
+          return (
+            <DwCard
+              key={stat.label}
+              variant="filled"
+              style={[styles.statCard, isMobile && styles.statCardMobile]}
+            >
+              <View style={styles.statContent}>
+                <View style={[styles.iconBox, { backgroundColor: bg }]}>
+                  <DwIcon name={stat.icon as any} size={24} color={fg} />
+                </View>
+                <View>
+                  <Text style={[TYPOGRAPHY.headlineMd, { color: colors.onSurface }]}>
+                    {stat.value}
+                  </Text>
+                  <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurfaceVariant }]}>
+                    {stat.label}
+                  </Text>
+                </View>
               </View>
-              <View>
-                <Text variant="headlineMedium" style={{ fontWeight: "bold" }}>{stat.value}</Text>
-                <Text variant="labelMedium" style={{ color: "#767680" }}>{stat.label}</Text>
-              </View>
-            </Card.Content>
-          </Card>
-        ))}
+            </DwCard>
+          );
+        })}
       </View>
     </ScrollView>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe", padding: 16 },
-  title: { fontWeight: "bold", marginBottom: 16 },
-  grid: { flexDirection: "row", flexWrap: "wrap", gap: 12 },
-  gridMobile: { gap: 8 },
+  container: { flex: 1, padding: SPACING.lg },
+  grid: { flexDirection: "row", flexWrap: "wrap", gap: SPACING.md },
+  gridMobile: { gap: SPACING.sm },
   statCard: { width: "30%", minWidth: 200 },
   statCardMobile: { width: "100%" },
-  statContent: { flexDirection: "row", alignItems: "center", gap: 12 },
-  iconBox: { width: 48, height: 48, borderRadius: 12, justifyContent: "center", alignItems: "center" },
+  statContent: { flexDirection: "row", alignItems: "center", gap: SPACING.md },
+  iconBox: {
+    width: 48,
+    height: 48,
+    borderRadius: RADIUS.sm,
+    justifyContent: "center",
+    alignItems: "center",
+  },
 });

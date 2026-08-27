@@ -1,6 +1,7 @@
 import { View, StyleSheet } from "react-native";
 import { Text, Card, Button, Chip } from "react-native-paper";
 import { Ionicons } from "@expo/vector-icons";
+import { COLORS } from "@/lib/constants";
 
 interface MissionDetailProps {
   title: string;
@@ -44,11 +45,11 @@ export function MissionDetail({
 
         <View style={styles.info}>
           <View style={styles.infoItem}>
-            <Ionicons name="bar-chart" size={14} color="#767680" />
+            <Ionicons name="bar-chart" size={14} color={COLORS.outline} />
             <Text variant="labelSmall" style={styles.infoText}>{difficulty}</Text>
           </View>
           <View style={styles.infoItem}>
-            <Ionicons name="folder" size={14} color="#767680" />
+            <Ionicons name="folder" size={14} color={COLORS.outline} />
             <Text variant="labelSmall" style={styles.infoText}>{category.replace("_", " ")}</Text>
           </View>
         </View>
@@ -64,12 +65,12 @@ export function MissionDetail({
 const styles = StyleSheet.create({
   card: { marginBottom: 16 },
   header: { flexDirection: "row", justifyContent: "space-between", marginBottom: 12 },
-  xpChip: { backgroundColor: "#10b98120" },
-  xpText: { color: "#10b981" },
+  xpChip: { backgroundColor: `${COLORS.success}20` },
+  xpText: { color: COLORS.success },
   title: { fontWeight: "bold", marginBottom: 8 },
-  desc: { color: "#767680", marginBottom: 16 },
+  desc: { color: COLORS.outline, marginBottom: 16 },
   info: { flexDirection: "row", gap: 16, marginBottom: 16 },
   infoItem: { flexDirection: "row", alignItems: "center", gap: 4 },
-  infoText: { color: "#767680" },
+  infoText: { color: COLORS.outline },
   btn: { marginTop: 8 },
 });

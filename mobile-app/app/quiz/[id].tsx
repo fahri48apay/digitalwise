@@ -1,23 +1,44 @@
 import { useState, useEffect } from "react";
-import { View, StyleSheet, ScrollView, Alert } from "react-native";
-import { Text, Card, Button, ProgressBar, RadioButton } from "react-native-paper";
+import { View, Text, ScrollView, Pressable, StyleSheet } from "react-native";
 import { useLocalSearchParams, useRouter } from "expo-router";
 import { useQuizStore } from "@/stores/quizStore";
 import { useQuizzes } from "@/hooks/useQuizzes";
 import { useXP } from "@/hooks/useXP";
+import { useAppTheme } from "@/providers/ThemeProvider";
+import { DwButton } from "@/components/ui/Button";
+import { DwCard } from "@/components/ui/Card";
+import { DwIcon } from "@/components/ui/Icon";
+import { DwAvatar } from "@/components/ui/Avatar";
+import { SPACING, RADIUS, TYPOGRAPHY, LAYOUT } from "@/lib/constants";
+
+const LETTERS = ["A", "B", "C", "D"];
 
 export default function QuizScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const router = useRouter();
   const { getQuiz } = useQuizzes();
   const { claimXP } = useXP();
-  const { questions, currentIndex, answers, isFinished, score, startQuiz, answerQuestion, nextQuestion, finishQuiz, resetQuiz } = useQuizStore();
+  const {
+    questions,
+    currentIndex,
+    answers,
+    isFinished,
+    score,
+    startQuiz,
+    answerQuestion,
+    nextQuestion,
+    finishQuiz,
+    resetQuiz,
+  } = useQuizStore();
+  const { colors } = useAppTheme();
 
   const [selected, setSelected] = useState<string | null>(null);
   const [showResult, setShowResult] = useState(false);
   const [xpEarned, setXpEarned] = useState(0);
 
-  useEffect(() => { loadQuiz(); }, [id]);
+  useEffect(() => {
+    loadQuiz();
+  }, [id]);
 
   async function loadQuiz() {
     if (!id) return;
@@ -26,7 +47,10 @@ export default function QuizScreen() {
   }
 
   const q = questions[currentIndex];
-  const progress = questions.length > 0 ? ((currentIndex + 1) / questions.length) * 100 : 0;
+  const progress =
+    questions.length > 0
+      ? ((currentIndex + 1) / questions.length) * 100
+      : 0;
 
   function handleSelect(value: string) {
     if (showResult) return;
@@ -57,86 +81,413 @@ export default function QuizScreen() {
     loadQuiz();
   }
 
+  // ── Result Screen ──────────────────────────────────────────
   if (isFinished) {
+    const message =
+      score === questions.length
+        ? "Sempurna!"
+        : score >= questions.length / 2
+          ? "Bagus!"
+          : "Coba Lagi";
+
     return (
-      <View style={styles.center}>
-        <Card style={styles.resultCard}>
-          <Card.Content style={styles.resultContent}>
-            <Text variant="headlineLarge" style={{ fontWeight: "bold" }}>
-              {score === questions.length ? "Sempurna!" : score >= questions.length / 2 ? "Bagus!" : "Coba Lagi"}
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <DwCard variant="elevated" style={styles.resultCard}>
+          <View style={styles.resultContent}>
+            <Text
+              style={[TYPOGRAPHY.headlineMd, { color: colors.onSurface }]}
+            >
+              {message}
             </Text>
-            <Text variant="titleLarge">{score}/{questions.length}</Text>
-            <Text style={{ color: "#3e4bbe", fontWeight: "bold" }}>+{xpEarned} XP</Text>
-            <Button mode="contained" onPress={handleRetry}>Coba Lagi</Button>
-            <Button mode="text" onPress={() => router.back()}>Kembali</Button>
-          </Card.Content>
-        </Card>
+            <Text
+              style={[TYPOGRAPHY.displayLg, { color: colors.primary }]}
+            >
+              {score}/{questions.length}
+            </Text>
+            <Text
+              style={[
+                TYPOGRAPHY.titleLg,
+                { color: colors.tertiary, fontWeight: "bold" },
+              ]}
+            >
+              +{xpEarned} XP
+            </Text>
+
+            <View style={styles.resultActions}>
+              <DwButton label="Coba Lagi" onPress={handleRetry} />
+              <DwButton
+                label="Kembali"
+                variant="outlined"
+                onPress={() => router.back()}
+              />
+            </View>
+          </View>
+        </DwCard>
       </View>
     );
   }
 
+  // ── Loading ────────────────────────────────────────────────
   if (!q) {
-    return <View style={styles.center}><Text>Memuat quiz...</Text></View>;
+    return (
+      <View style={[styles.center, { backgroundColor: colors.background }]}>
+        <Text style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant }]}>
+          Memuat quiz...
+        </Text>
+      </View>
+    );
   }
 
+  // ── Main Quiz Screen ───────────────────────────────────────
+  const isAnswered = answers.some((a) => a.questionId === q.id);
+  const currentAnswer = answers.find((a) => a.questionId === q.id);
+
   return (
-    <ScrollView style={styles.container}>
-      <ProgressBar progress={progress / 100} color="#3e4bbe" style={{ margin: 16 }} />
-      <Text variant="labelMedium" style={{ textAlign: "center", marginBottom: 16 }}>
-        Soal {currentIndex + 1} dari {questions.length}
-      </Text>
+    <View style={[styles.screen, { backgroundColor: colors.background }]}>
+      {/* Top bar */}
+      <View style={styles.topBar}>
+        <Pressable
+          onPress={() => router.back()}
+          style={[
+            styles.backButton,
+            { width: LAYOUT.touchTarget, height: LAYOUT.touchTarget },
+          ]}
+          hitSlop={8}
+          accessibilityLabel="Kembali"
+        >
+          <DwIcon name="arrow-left" size={24} color={colors.onSurface} />
+        </Pressable>
+      </View>
 
-      <Card style={styles.card}>
-        <Card.Content>
-          <Text variant="labelMedium">{q.sender}</Text>
-          <Text variant="labelSmall" style={{ color: "#767680" }}>{q.senderMeta}</Text>
-          <Card style={{ marginTop: 12, backgroundColor: "#f0ecf4" }}>
-            <Card.Content><Text variant="bodyMedium">{q.body}</Text></Card.Content>
-          </Card>
-          <Text variant="titleSmall" style={{ marginTop: 16, marginBottom: 8 }}>{q.question}</Text>
+      <ScrollView
+        style={styles.scroll}
+        contentContainerStyle={styles.scrollContent}
+      >
+        {/* Progress */}
+        <View style={styles.progressSection}>
+          <Text
+            style={[
+              TYPOGRAPHY.labelMd,
+              { color: colors.onSurfaceVariant, textAlign: "center" },
+            ]}
+          >
+            Soal {currentIndex + 1} dari {questions.length}
+          </Text>
+          <View
+            style={[
+              styles.progressTrack,
+              {
+                backgroundColor: colors.surfaceContainerHighest,
+                borderRadius: 4,
+              },
+            ]}
+          >
+            <View
+              style={[
+                styles.progressFill,
+                {
+                  width: `${progress}%`,
+                  backgroundColor: colors.primary,
+                  borderRadius: 4,
+                },
+              ]}
+            />
+          </View>
+        </View>
 
-          <RadioButton.Group onValueChange={handleSelect} value={selected ?? ""}>
-            {q.options.map((opt, i) => (
-              <Card key={i} style={[
-                styles.optionCard,
-                showResult && i === q.correctIndex && styles.correctOption,
-                showResult && selected === String(i) && i !== q.correctIndex && styles.wrongOption,
-              ]}>
-                <Card.Content>
-                  <RadioButton.Item label={opt} value={String(i)} disabled={showResult} />
-                </Card.Content>
-              </Card>
-            ))}
-          </RadioButton.Group>
-
-          {showResult && (
-            <View style={styles.explanation}>
-              <Text variant="labelMedium" style={{ marginBottom: 4 }}>Penjelasan:</Text>
-              {q.explanation.map((text: string, i: number) => (
-                <Text key={i} variant="bodySmall" style={{ marginBottom: 2 }}>• {text}</Text>
-              ))}
+        {/* Email Card */}
+        <DwCard style={styles.emailCard}>
+          {/* Sender */}
+          <View style={styles.senderRow}>
+            <DwAvatar name={q.sender} size={36} />
+            <View style={styles.senderInfo}>
+              <Text
+                style={[TYPOGRAPHY.labelLg, { color: colors.onSurface }]}
+              >
+                {q.sender}
+              </Text>
+              <Text
+                style={[
+                  TYPOGRAPHY.labelSm,
+                  { color: colors.onSurfaceVariant, fontWeight: "400" },
+                ]}
+              >
+                {q.senderMeta}
+              </Text>
             </View>
-          )}
+          </View>
 
-          {showResult && (
-            <Button mode="contained" onPress={handleNext} style={{ marginTop: 16 }}>
-              {currentIndex < questions.length - 1 ? "Selanjutnya" : "Lihat Hasil"}
-            </Button>
-          )}
-        </Card.Content>
-      </Card>
-    </ScrollView>
+          {/* Subject */}
+          <Text
+            style={[
+              TYPOGRAPHY.titleMd,
+              { color: colors.onSurface, marginTop: SPACING.md },
+            ]}
+          >
+            {q.question}
+          </Text>
+
+          {/* Body */}
+          <DwCard
+            variant="filled"
+            style={[
+              styles.emailBody,
+              {
+                backgroundColor: colors.surfaceContainerLow,
+                borderRadius: RADIUS.sm,
+                marginTop: SPACING.md,
+              },
+            ]}
+          >
+            <Text
+              style={[TYPOGRAPHY.bodyMd, { color: colors.onSurfaceVariant }]}
+            >
+              {q.body}
+            </Text>
+          </DwCard>
+        </DwCard>
+
+        {/* Answer Options */}
+        {q.options.map((opt, i) => {
+          let bg = colors.surfaceContainerLow;
+          let border = colors.outlineVariant;
+          let textColor = colors.onSurface;
+          let icon: string | null = null;
+          let iconColor = colors.onSurface;
+
+          if (isAnswered && currentAnswer) {
+            if (i === q.correctIndex) {
+              bg = colors.successContainer;
+              border = colors.success;
+              icon = "check-circle";
+              iconColor = colors.success;
+            } else if (
+              i === currentAnswer.selectedIndex &&
+              !currentAnswer.isCorrect
+            ) {
+              bg = colors.errorContainer;
+              border = colors.error;
+              icon = "close-circle";
+              iconColor = colors.error;
+            }
+          } else if (selected === String(i)) {
+            bg = colors.primaryContainer;
+            border = colors.primary;
+          }
+
+          return (
+            <Pressable
+              key={i}
+              onPress={() => handleSelect(String(i))}
+              disabled={isAnswered}
+              style={({ pressed }) => [
+                styles.optionCard,
+                {
+                  backgroundColor: bg,
+                  borderColor: border,
+                  height: 56,
+                  borderRadius: RADIUS.sm,
+                  borderWidth: 1,
+                  opacity: pressed ? 0.85 : 1,
+                },
+              ]}
+              accessibilityRole="radio"
+              accessibilityState={{ checked: selected === String(i), disabled: isAnswered }}
+              accessibilityLabel={`${LETTERS[i]}. ${opt}`}
+            >
+              {/* Letter circle */}
+              <View
+                style={[
+                  styles.letterCircle,
+                  {
+                    width: 28,
+                    height: 28,
+                    borderRadius: 14,
+                    backgroundColor: isAnswered && i === q.correctIndex
+                      ? colors.success
+                      : isAnswered && i === currentAnswer?.selectedIndex && !currentAnswer?.isCorrect
+                        ? colors.error
+                        : selected === String(i)
+                          ? colors.primary
+                          : colors.surfaceContainerHighest,
+                  },
+                ]}
+              >
+                <Text
+                  style={[
+                    TYPOGRAPHY.labelSm,
+                    {
+                      color: isAnswered && i === q.correctIndex
+                        ? colors.onSuccess
+                        : isAnswered && i === currentAnswer?.selectedIndex && !currentAnswer?.isCorrect
+                          ? colors.onError
+                          : selected === String(i)
+                            ? colors.onPrimary
+                            : colors.onSurfaceVariant,
+                      fontWeight: "600",
+                      fontSize: 12,
+                    },
+                  ]}
+                >
+                  {LETTERS[i]}
+                </Text>
+              </View>
+
+              {/* Option text */}
+              <Text
+                style={[
+                  TYPOGRAPHY.bodyMd,
+                  {
+                    color: textColor,
+                    flex: 1,
+                    marginLeft: SPACING.md,
+                  },
+                ]}
+                numberOfLines={2}
+              >
+                {opt}
+              </Text>
+
+              {/* Result icon */}
+              {icon && (
+                <DwIcon name={icon as any} size={20} color={iconColor} />
+              )}
+            </Pressable>
+          );
+        })}
+
+        {/* Explanation */}
+        {isAnswered && (
+          <View
+            style={[
+              styles.explanation,
+              {
+                backgroundColor: colors.surfaceContainer,
+                borderRadius: RADIUS.sm,
+                borderLeftWidth: 3,
+                borderLeftColor: colors.primary,
+                marginTop: SPACING.lg,
+              },
+            ]}
+          >
+            <Text
+              style={[
+                TYPOGRAPHY.labelMd,
+                { color: colors.onSurface, marginBottom: SPACING.xs },
+              ]}
+            >
+              Penjelasan:
+            </Text>
+            {q.explanation.map((text: string, i: number) => (
+              <Text
+                key={i}
+                style={[
+                  TYPOGRAPHY.bodyMd,
+                  {
+                    color: colors.onSurfaceVariant,
+                    marginBottom: SPACING.xs,
+                  },
+                ]}
+              >
+                {"\u2022"} {text}
+              </Text>
+            ))}
+          </View>
+        )}
+
+        {/* Next / Lihat Hasil */}
+        {isAnswered && (
+          <View style={{ marginTop: SPACING.lg, marginBottom: SPACING.xxl }}>
+            <DwButton
+              label={
+                currentIndex < questions.length - 1
+                  ? "Selanjutnya"
+                  : "Lihat Hasil"
+              }
+              onPress={handleNext}
+            />
+          </View>
+        )}
+      </ScrollView>
+    </View>
   );
 }
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: "#fbf8fe" },
-  center: { flex: 1, justifyContent: "center", alignItems: "center", backgroundColor: "#fbf8fe", padding: 24 },
-  card: { marginHorizontal: 16, marginBottom: 16 },
-  optionCard: { marginBottom: 8 },
-  correctOption: { backgroundColor: "#10b98120" },
-  wrongOption: { backgroundColor: "#ef444420" },
-  explanation: { marginTop: 16, padding: 12, backgroundColor: "#3e4bbe10", borderRadius: 8 },
-  resultCard: { width: "100%", maxWidth: 320 },
-  resultContent: { alignItems: "center", gap: 16, padding: 8 },
+  screen: {
+    flex: 1,
+  },
+  center: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: SPACING.xxl,
+  },
+  topBar: {
+    paddingTop: LAYOUT.statusBarHeight,
+    paddingHorizontal: SPACING.sm,
+  },
+  backButton: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  scroll: {
+    flex: 1,
+  },
+  scrollContent: {
+    paddingHorizontal: SPACING.lg,
+    paddingBottom: SPACING.xxxl,
+  },
+  progressSection: {
+    marginTop: SPACING.sm,
+    marginBottom: SPACING.lg,
+    gap: SPACING.sm,
+  },
+  progressTrack: {
+    height: 8,
+    overflow: "hidden",
+  },
+  progressFill: {
+    height: 8,
+  },
+  emailCard: {
+    marginBottom: SPACING.lg,
+  },
+  senderRow: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  senderInfo: {
+    marginLeft: SPACING.md,
+    flex: 1,
+  },
+  emailBody: {
+    padding: SPACING.md,
+  },
+  optionCard: {
+    flexDirection: "row",
+    alignItems: "center",
+    paddingHorizontal: SPACING.md,
+    marginBottom: SPACING.sm,
+  },
+  letterCircle: {
+    alignItems: "center",
+    justifyContent: "center",
+  },
+  explanation: {
+    padding: SPACING.md,
+  },
+  resultCard: {
+    width: "100%",
+    maxWidth: 320,
+  },
+  resultContent: {
+    alignItems: "center",
+    gap: SPACING.lg,
+    padding: SPACING.sm,
+  },
+  resultActions: {
+    width: "100%",
+    gap: SPACING.sm,
+  },
 });

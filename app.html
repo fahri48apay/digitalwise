@@ -185,11 +185,11 @@
   .nav-item {
     display: flex; flex-direction: column; align-items: center; gap: 3px; border: none;
     background: none; cursor: pointer; color: var(--color-on-surface-variant);
-    font: var(--font-label-md); min-width: 64px; min-height: var(--touch-target);
+    font: 500 11px/16px var(--font-family); min-width: 64px; min-height: var(--touch-target);
     justify-content: center; border-radius: var(--radius-sm);
   }
   .nav-item .nav-pill {
-    width: 56px; height: 30px; border-radius: var(--radius-full);
+    width: 56px; height: 30px; border-radius: 15px;
     display: flex; align-items: center; justify-content: center;
     transition: background var(--motion-short);
   }
@@ -227,7 +227,7 @@
   .field .input-wrap { position: relative; display: flex; align-items: center; }
   .field input, .field textarea {
     width: 100%; min-height: 52px; border: 1.5px solid var(--color-outline);
-    border-radius: var(--radius-sm); background: transparent; padding: 14px 16px;
+    border-radius: var(--radius-sm); background: #ffffff; padding: 14px 16px;
     font: var(--font-body-lg); font-family: inherit; color: var(--color-on-surface);
     transition: border-color var(--motion-short);
   }
@@ -235,15 +235,16 @@
   .field input:focus, .field textarea:focus { outline: none; border-color: var(--color-primary); border-width: 2px; padding: 13px 15px; }
   .field input:focus-visible, .field textarea:focus-visible { outline: none; }
   .field .trail-btn {
-    position: absolute; right: 6px; width: 40px; height: 40px; border-radius: 50%; border: none;
+    position: absolute; right: 4px; width: 40px; height: 40px; border-radius: 50%; border: none;
     background: none; color: var(--color-on-surface-variant); cursor: pointer;
     display: flex; align-items: center; justify-content: center;
   }
+  .field .trail-btn .msr { font-size: 22px; }
 
   /* ============ SPESIFIK PER LAYAR ============ */
   /* Login */
   .login-hero {
-    background: linear-gradient(160deg, var(--color-primary-container), var(--color-surface) 78%);
+    background: var(--color-surface);
     display: flex; flex-direction: column; align-items: center; text-align: center;
     padding: 34px 24px 22px; gap: 14px;
   }
@@ -260,15 +261,15 @@
   .home-header .who { flex: 1; min-width: 0; }
   .home-header .hello { font: var(--font-headline-md); letter-spacing: -0.01em; }
   .home-header .lvl { font: var(--font-body-md); color: var(--color-on-surface-variant); margin-top: 2px; }
-  .xp-card { background: var(--color-primary-container); color: var(--color-on-primary-container); border-radius: var(--radius-xl); padding: 18px; position: relative; overflow: hidden; }
+  .xp-card { background: var(--color-surface-container); color: var(--color-on-surface); border-radius: 24px; padding: 18px; position: relative; overflow: hidden; }
   .xp-card .row1 { display: flex; align-items: center; justify-content: space-between; margin-bottom: 10px; }
   .xp-card .lvl-hex {
     width: 44px; height: 44px; flex-shrink: 0; background: var(--color-primary); color: var(--color-on-primary);
     clip-path: polygon(25% 3%, 75% 3%, 100% 50%, 75% 97%, 25% 97%, 0% 50%);
     display: flex; align-items: center; justify-content: center; font: 800 18px/1 var(--font-family);
   }
-  .xp-card .bar { background: rgba(0,0,0,0.14); }
-  .xp-card .bar > span { background: var(--color-primary); }
+  .xp-card .bar { background: rgba(0,0,0,0.14); border-radius: 4px; }
+  .xp-card .bar > span { background: var(--color-primary); border-radius: 4px; }
   .xp-card .row2 { display: flex; justify-content: space-between; font: var(--font-label-md); margin-top: 8px; }
   .streak-row { display: flex; gap: 10px; }
   .stat-pill {
@@ -281,7 +282,7 @@
   .mission-scroll { display: flex; gap: 12px; overflow-x: auto; margin: 0 -20px; padding: 4px 20px 6px; scrollbar-width: none; }
   .mission-scroll::-webkit-scrollbar { display: none; }
   .mission-card {
-    flex: 0 0 128px; background: var(--color-surface-container-low); border-radius: var(--radius-md);
+    flex: 0 0 118px; background: var(--color-surface-container-low); border-radius: var(--radius-md);
     padding: 14px 12px; display: flex; flex-direction: column; align-items: center; gap: 8px;
     text-align: center; border: none; cursor: pointer; font-family: inherit; color: inherit;
     transition: box-shadow var(--motion-short), transform var(--motion-short);
@@ -296,16 +297,16 @@
   .progress-legend { display: flex; flex-direction: column; gap: 12px; }
   .pl-row .top { display: flex; justify-content: space-between; font: var(--font-label-md); margin-bottom: 5px; }
   .pl-row .top .pct { color: var(--color-on-surface-variant); }
-  .help-cta { display: flex; align-items: center; gap: 12px; background: var(--color-error-container); color: var(--color-on-error-container); border-radius: var(--radius-md); padding: 14px; }
+  .help-cta { display: flex; align-items: center; gap: 12px; background: var(--color-surface-container); color: var(--color-on-surface); border-radius: var(--radius-md); padding: 14px; }
   .help-cta .txt { flex: 1; }
   .help-cta .t1 { font: var(--font-title-md); }
   .help-cta .t2 { font: var(--font-body-md); margin-top: 2px; }
-  .help-cta .btn { width: auto; min-height: 40px; padding: 0 16px; background: var(--color-error); color: var(--color-on-error); flex-shrink: 0; }
-  .forum-cta { display: flex; align-items: center; gap: 12px; background: var(--color-tertiary-container); color: var(--color-on-tertiary-container); border-radius: var(--radius-md); padding: 14px; }
+  .help-cta .btn { width: auto; min-height: 40px; padding: 0 16px; background: var(--color-error); color: var(--color-on-error); flex-shrink: 0; border-radius: 20px; }
+  .forum-cta { display: flex; align-items: center; gap: 12px; background: var(--color-surface-container); color: var(--color-on-surface); border-radius: var(--radius-md); padding: 14px; }
   .forum-cta .txt { flex: 1; }
-  .forum-cta .t1 { font: var(--font-title-md); }
+  .forum-cta .t1 { font: var(--font-title-md); font-weight: 700; }
   .forum-cta .t2 { font: var(--font-body-md); margin-top: 2px; }
-  .forum-cta .btn { width: auto; min-height: 40px; padding: 0 16px; background: var(--color-tertiary); color: var(--color-on-tertiary); flex-shrink: 0; }
+  .forum-cta .btn { width: auto; min-height: 40px; padding: 0 16px; background: var(--color-tertiary); color: var(--color-on-tertiary); flex-shrink: 0; border-radius: 20px; }
   /* Edge states */
   .edge-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
   .edge-card { background: var(--color-surface-container); border-radius: var(--radius-lg); padding: 16px; display: flex; flex-direction: column; gap: 10px; }
@@ -553,14 +554,14 @@
   .poin-card li .msr { color: var(--color-success); flex-shrink: 0; }
 
   /* Notifikasi (layar 11) */
-  .section-label { font: var(--font-label-lg); color: var(--color-on-surface-variant); }
+  .section-label { font: 600 13px/20px var(--font-family); color: var(--color-on-surface-variant); }
   .notif-item {
     display: flex; align-items: flex-start; gap: 12px; border-radius: var(--radius-md);
     padding: 14px; background: var(--color-surface-container-low);
   }
   .notif-item.unread { background: var(--color-primary-container); color: var(--color-on-primary-container); }
   .notif-item .grow { flex: 1; min-width: 0; }
-  .notif-item .t1 { font: var(--font-title-md); }
+  .notif-item .t1 { font: 600 16px/24px var(--font-family); font-weight: 700; }
   .notif-item .t2 { font: var(--font-body-md); display: block; margin-top: 2px; line-height: 1.45; }
   .notif-item .side { display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex-shrink: 0; }
   .notif-item .time { font: var(--font-label-md); color: var(--color-on-surface-variant); }
@@ -620,7 +621,7 @@
             <label for="email">Email atau nama pengguna</label>
             <div class="input-wrap">
               <input id="email" type="text" autocomplete="username" placeholder="nama@contoh.com">
-              <span class="msr" style="position:absolute; right:16px; color: var(--color-on-surface-variant);" aria-hidden="true">mail</span>
+              <span class="msr" style="position:absolute; right:12px; color: var(--color-on-surface-variant); font-size: 22px;" aria-hidden="true">mail</span>
             </div>
           </div>
           <div class="field">
