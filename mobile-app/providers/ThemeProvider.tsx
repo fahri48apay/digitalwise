@@ -30,24 +30,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
   const [mode, setModeState] = useState<ThemeMode>("light");
   const [ready, setReady] = useState(false);
 
-  // Load persisted theme on mount
+  // Load persisted theme on mount. Honor "system" as a distinct choice —
+  // isDark recomputes live from systemScheme below, so we must NOT collapse
+  // it to light/dark here.
   useEffect(() => {
     AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
       if (stored === "light" || stored === "dark" || stored === "system") {
-        setModeState(stored === "system" ? (systemScheme === "dark" ? "dark" : "light") : stored);
+        setModeState(stored);
       }
       setReady(true);
     });
   }, []);
-
-  // React to system changes when mode is "system"
-  useEffect(() => {
-    AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
-      if (stored === "system" || !stored) {
-        setModeState(systemScheme === "dark" ? "dark" : "light");
-      }
-    });
-  }, [systemScheme]);
 
   const setMode = useCallback((newMode: ThemeMode) => {
     setModeState(newMode);
@@ -58,7 +51,8 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     setMode(mode === "light" ? "dark" : "light");
   }, [mode, setMode]);
 
-  const isDark = mode === "dark";
+  const isDark =
+    mode === "system" ? systemScheme === "dark" : mode === "dark";
   const colors = isDark ? COLORS_DARK : COLORS;
 
   if (!ready) return null;

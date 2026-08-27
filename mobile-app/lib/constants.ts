@@ -122,10 +122,10 @@ export const COLORS_DARK = {
 };
 
 // ─── THEME HELPER ─────────────────────────────────────────────
-export type ThemeMode = "light" | "dark";
+export type ThemeMode = "light" | "dark" | "system";
 
 export function getColors(mode: ThemeMode) {
-  return mode === "dark" ? COLORS_DARK : COLORS;
+  return mode === "dark" || (mode === "system") ? COLORS_DARK : COLORS;
 }
 
 // ─── TYPOGRAPHY (M3 type scale) ───────────────────────────────
