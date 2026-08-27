@@ -257,26 +257,29 @@ export default function HomeScreen() {
     height?: number;
     radius?: number;
     value: number;
-  }) => (
-    <View
-      style={{
-        width: "100%",
-        height,
-        borderRadius: radius,
-        backgroundColor: trackColor,
-        overflow: "hidden",
-      }}
-    >
+  }) => {
+    const pct = Math.min(Math.max(Number.isFinite(Number(value)) ? Number(value) : 0, 0), 100);
+    return (
       <View
         style={{
-          width: `${Math.min(Math.max(value, 0), 100)}%`,
-          height: "100%",
+          width: "100%",
+          height,
           borderRadius: radius,
-          backgroundColor: fillColor,
+          backgroundColor: trackColor,
+          overflow: "hidden",
         }}
-      />
-    </View>
-  );
+      >
+        <View
+          style={{
+            width: `${pct}%`,
+            height: "100%",
+            borderRadius: radius,
+            backgroundColor: fillColor,
+          }}
+        />
+      </View>
+    );
+  };
 
   // ═══════════════════════════════════════════════════════════════
   //  RENDER

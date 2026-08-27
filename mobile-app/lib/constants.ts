@@ -221,13 +221,14 @@ export function getLevelForXp(totalXp: number) {
 }
 
 export function getXpProgress(totalXp: number) {
-  const current = getLevelForXp(totalXp);
+  const safeXp = Number.isFinite(Number(totalXp)) ? Number(totalXp) : 0;
+  const current = getLevelForXp(safeXp);
   const nextIdx = LEVELS.findIndex((l) => l.level === current.level) + 1;
   const next = nextIdx < LEVELS.length ? LEVELS[nextIdx] : null;
   const progress = next
-    ? ((totalXp - current.xpThreshold) / (next.xpThreshold - current.xpThreshold)) * 100
+    ? ((safeXp - current.xpThreshold) / (next.xpThreshold - current.xpThreshold)) * 100
     : 100;
-  return { current, next, progress: Math.min(progress, 100) };
+  return { current, next, progress: Math.min(Math.max(progress, 0), 100) };
 }
 
 export const CATEGORIES = [
