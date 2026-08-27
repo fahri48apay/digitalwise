@@ -2,10 +2,13 @@ import { View, ScrollView, RefreshControl, Pressable } from "react-native";
 import { useCallback, useState, useEffect } from "react";
 import { Text } from "react-native-paper";
 import { useRouter } from "expo-router";
+import { supabase } from "@/lib/supabase";
 import { useProfile } from "@/hooks/useProfile";
 import { useXP } from "@/hooks/useXP";
+import { useMissions } from "@/hooks/useMissions";
 import {
   getXpProgress,
+  CATEGORIES,
   SPACING,
   TYPOGRAPHY,
   LAYOUT,
@@ -14,36 +17,99 @@ import { LevelUpModal } from "@/components/gamification";
 import { DwCard, DwIcon, DwAvatar } from "@/components/ui";
 import { useAppTheme } from "@/providers/ThemeProvider";
 
-// ── Mock missions (replace with Supabase query when table exists) ──
-const MOCK_MISSIONS = [
-  { id: "1", icon: "shield-check" as const, label: "Cek Email", xp: 100, done: true },
-  { id: "2", icon: "lock" as const, label: "Buat Password", xp: 100, done: false },
-  { id: "3", icon: "cellphone-check" as const, label: "Privasi HP", xp: 100, done: true },
-  { id: "4", icon: "alert-circle" as const, label: "Phishing", xp: 100, done: false },
-];
+// Map kategori -> ikon mission card
+const CATEGORY_ICON: Record<string, string> = {
+  keamanan_siber: "shield-check",
+  privasi_data: "lock",
+  etika_digital: "hand-heart",
+};
 
-// ── Category progress (replace with real data when available) ──
-const CATEGORY_PROGRESS = [
-  { id: "keamanan_siber", label: "Keamanan Siber", color: "primary", pct: 72 },
-  { id: "privasi_data", label: "Privasi Data", color: "tertiary", pct: 48 },
-  { id: "etika_digital", label: "Etika Digital", color: "success", pct: 85 },
-];
-
+// ── Real per-user data (no mock) ──
 export default function HomeScreen() {
   const router = useRouter();
   const { colors } = useAppTheme();
   const { profile, loading, refetch } = useProfile();
+  const { missions } = useMissions();
   const { checkStreak, lastResult, clearLastResult } = useXP();
   const [showLevelUp, setShowLevelUp] = useState(false);
+  const [dailyMissions, setDailyMissions] = useState<any[]>([]);
+  const [categoryProgress, setCategoryProgress] = useState<any[]>([]);
+  const [homeLoading, setHomeLoading] = useState(false);
 
   useEffect(() => {
     if (lastResult?.leveled_up) setShowLevelUp(true);
   }, [lastResult]);
 
+  // Ambil data progres per-user dari DB
+  const loadHome = useCallback(async () => {
+    if (!profile) return;
+    setHomeLoading(true);
+    const userId = profile.id;
+
+    // 1. Mission completion user
+    const { data: comp } = await supabase
+      .from("mission_completions")
+      .select("mission_id")
+      .eq("user_id", userId);
+    const doneMissionIds = new Set((comp || []).map((c: any) => c.mission_id));
+
+    // 2. Misi harian = 4 mission aktif pertama + status selesai user
+    const dm = (missions || [])
+      .filter((m: any) => m.is_active !== false)
+      .slice(0, 4)
+      .map((m: any) => ({
+        id: m.id,
+        icon: CATEGORY_ICON[m.category] || "book-open-variant",
+        label: m.title,
+        xp: m.xp_reward,
+        done: doneMissionIds.has(m.id),
+      }));
+    setDailyMissions(dm);
+
+    // 3. Progres belajar per kategori (material selesai / total material)
+    const { data: mats } = await supabase
+      .from("learning_materials")
+      .select("id, category")
+      .eq("is_active", true);
+    const { data: prog } = await supabase
+      .from("learning_progress")
+      .select("material_id, completed")
+      .eq("user_id", userId);
+    const completedIds = new Set(
+      (prog || []).filter((p: any) => p.completed).map((p: any) => p.material_id)
+    );
+
+    const totals: Record<string, { total: number; done: number }> = {};
+    (mats || []).forEach((m: any) => {
+      totals[m.category] = totals[m.category] || { total: 0, done: 0 };
+      totals[m.category].total += 1;
+      if (completedIds.has(m.id)) totals[m.category].done += 1;
+    });
+
+    const catProg = CATEGORIES.map((c) => {
+      const t = totals[c.id] || { total: 0, done: 0 };
+      const pct = t.total > 0 ? Math.round((t.done / t.total) * 100) : 0;
+      const colorKey =
+        c.id === "keamanan_siber"
+          ? "primary"
+          : c.id === "privasi_data"
+          ? "tertiary"
+          : "success";
+      return { id: c.id, label: c.label, color: colorKey, pct };
+    });
+    setCategoryProgress(catProg);
+    setHomeLoading(false);
+  }, [profile, missions]);
+
+  useEffect(() => {
+    loadHome();
+  }, [loadHome]);
+
   const onRefresh = useCallback(async () => {
     await refetch();
     await checkStreak();
-  }, []);
+    await loadHome();
+  }, [refetch, checkStreak, loadHome]);
 
   if (loading || !profile) {
     return (
@@ -120,18 +186,20 @@ export default function HomeScreen() {
 
   // ── Daily mission card ──
   const MissionCard = ({
+    id,
     icon,
     label,
     xp,
     done,
   }: {
+    id: string;
     icon: string;
     label: string;
     xp: number;
     done: boolean;
   }) => (
     <Pressable
-      onPress={() => router.push("/quizzes")}
+      onPress={() => router.push(`/mission/${id}`)}
       style={({ pressed }) => ({
         width: 118,
         height: 132,
@@ -340,9 +408,10 @@ export default function HomeScreen() {
             showsHorizontalScrollIndicator={false}
             contentContainerStyle={{ gap: SPACING.sm }}
           >
-            {MOCK_MISSIONS.map((m) => (
+            {dailyMissions.map((m) => (
               <MissionCard
                 key={m.id}
+                id={m.id}
                 icon={m.icon}
                 label={m.label}
                 xp={m.xp}
@@ -361,7 +430,7 @@ export default function HomeScreen() {
             </Pressable>
           </View>
 
-          {CATEGORY_PROGRESS.map((cat) => (
+          {categoryProgress.map((cat) => (
             <View key={cat.id} style={{ marginBottom: SPACING.sm }}>
               <View style={{ flexDirection: "row", justifyContent: "space-between", marginBottom: SPACING.xs }}>
                 <Text style={[TYPOGRAPHY.labelMd, { color: colors.onSurface }]}>{cat.label}</Text>
