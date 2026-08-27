@@ -107,7 +107,7 @@ CREATE TABLE missions (
 
 ALTER TABLE missions ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Active missions viewable by authenticated"
-  ON missions FOR SELECT USING (auth.role() = 'authenticated' AND is_active = true);
+  ON missions FOR SELECT USING (auth.uid() IS NOT NULL AND is_active = true);
 
 
 -- =========================
@@ -151,7 +151,7 @@ CREATE TABLE quizzes (
 
 ALTER TABLE quizzes ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Quizzes viewable by authenticated"
-  ON quizzes FOR SELECT USING (auth.role() = 'authenticated' AND is_active = true);
+  ON quizzes FOR SELECT USING (auth.uid() IS NOT NULL AND is_active = true);
 
 
 -- =========================
@@ -202,7 +202,7 @@ CREATE TABLE learning_materials (
 
 ALTER TABLE learning_materials ENABLE ROW LEVEL SECURITY;
 CREATE POLICY "Materials viewable by authenticated"
-  ON learning_materials FOR SELECT USING (auth.role() = 'authenticated' AND is_active = true);
+  ON learning_materials FOR SELECT USING (auth.uid() IS NOT NULL AND is_active = true);
 
 
 -- =========================
