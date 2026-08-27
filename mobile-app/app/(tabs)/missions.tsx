@@ -5,6 +5,8 @@ import { useRouter } from "expo-router";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import { useAppTheme } from "@/providers/ThemeProvider";
 import { useMissions } from "@/hooks/useMissions";
+import { useProfile } from "@/hooks/useProfile";
+import { supabase } from "@/lib/supabase";
 import {
   SPACING,
   RADIUS,
@@ -73,19 +75,38 @@ export default function MissionsScreen() {
   const router = useRouter();
   const { colors, isDark } = useAppTheme();
   const { missions, loading, refetch } = useMissions();
+  const { profile } = useProfile();
   const [filter, setFilter] = useState<FilterKey>("all");
+  const [catProgress, setCatProgress] = useState<any[]>([]);
+  const [dailyChallenge, setDailyChallenge] = useState<any>(null);
 
   useEffect(() => {
     refetch();
   }, []);
 
-  const categoryProgress = useMemo(() => {
-    const total = 4;
-    return CATEGORIES.map((cat) => {
-      const count = missions.filter((m: any) => m.category === cat.id).length;
-      return { ...cat, count: Math.min(count, total), total };
-    });
-  }, [missions]);
+  // Progres kategori & tantangan harian dihitung dari completion USER,
+  // bukan dari jumlah misi di katalog (biar user baru mulai dari 0).
+  useEffect(() => {
+    if (!profile || missions.length === 0) return;
+    (async () => {
+      const { data: comp } = await supabase
+        .from("mission_completions")
+        .select("mission_id")
+        .eq("user_id", profile.id);
+      const doneIds = new Set((comp || []).map((c: any) => c.mission_id));
+
+      const prog = CATEGORIES.map((cat) => {
+        const inCat = missions.filter((m: any) => m.category === cat.id);
+        const total = inCat.length;
+        const done = inCat.filter((m: any) => doneIds.has(m.id)).length;
+        return { ...cat, total, done };
+      });
+      setCatProgress(prog);
+
+      const next = missions.find((m: any) => !doneIds.has(m.id)) || missions[0];
+      setDailyChallenge(next);
+    })();
+  }, [profile, missions]);
 
   if (loading) {
     return (
@@ -146,7 +167,7 @@ export default function MissionsScreen() {
                 },
               ]}
             >
-              Identifikasi Pesan Phishing
+              {dailyChallenge?.title || "Tantangan Hari Ini"}
             </Text>
             <Text
               style={[
@@ -159,7 +180,8 @@ export default function MissionsScreen() {
               ]}
               numberOfLines={2}
             >
-              Kenali ciri-ciri pesan phishing dan lindungi dirimu dari serangan digital.
+              {dailyChallenge?.description ||
+                "Selesaikan misi ini untuk mengasah literasi digitalmu."}
             </Text>
           </View>
         </View>
@@ -169,8 +191,7 @@ export default function MissionsScreen() {
             { backgroundColor: colors.primary, opacity: pressed ? 0.85 : 1 },
           ]}
           onPress={() => {
-            const first = missions[0];
-            if (first) router.push(`/mission/${first.id}`);
+            if (dailyChallenge) router.push(`/mission/${dailyChallenge.id}`);
             else router.push(`/mission/category/keamanan_siber`);
           }}
         >
@@ -222,14 +243,14 @@ export default function MissionsScreen() {
       </View>
 
       {/* Category Cards */}
-      {categoryProgress.map((cat) => {
+      {catProgress.map((cat) => {
         const catColor = isDark
           ? CATEGORY_COLORS_DARK[cat.id]
           : CATEGORY_COLORS_LIGHT[cat.id];
         const catBg = isDark
           ? CATEGORY_CONTAINERS_DARK[cat.id]
           : CATEGORY_CONTAINERS_LIGHT[cat.id];
-        const progress = cat.total > 0 ? cat.count / cat.total : 0;
+        const progress = cat.total > 0 ? cat.done / cat.total : 0;
 
         return (
           <Pressable
@@ -276,7 +297,7 @@ export default function MissionsScreen() {
                     },
                   ]}
                 >
-                  {cat.count} misi tersedia
+                  {cat.done} dari {cat.total} selesai
                 </Text>
               </View>
 
@@ -288,7 +309,7 @@ export default function MissionsScreen() {
                     { color: colors.onSurfaceVariant, fontWeight: "500" },
                   ]}
                 >
-                  {cat.count}/{cat.total}
+                  {cat.done}/{cat.total}
                 </Text>
                 <MaterialCommunityIcons
                   name="chevron-right"
