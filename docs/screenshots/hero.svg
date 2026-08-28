@@ -1,0 +1,145 @@
+<svg width="1280" height="640" viewBox="0 0 1280 640" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#2b1a63"/>
+      <stop offset="0.5" stop-color="#3e4bbe"/>
+      <stop offset="1" stop-color="#744cb0"/>
+    </linearGradient>
+    <linearGradient id="card" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#fbf8fe"/>
+      <stop offset="1" stop-color="#efedf5"/>
+    </linearGradient>
+    <linearGradient id="xp" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#3e4bbe"/>
+      <stop offset="1" stop-color="#744cb0"/>
+    </linearGradient>
+    <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+      <feGaussianBlur stdDeviation="30" result="b"/>
+      <feMerge><feMergeNode in="b"/><feMergeNode in="SourceGraphic"/></feMerge>
+    </filter>
+    <filter id="shadow" x="-20%" y="-20%" width="140%" height="160%">
+      <feDropShadow dx="0" dy="24" stdDeviation="24" flood-color="#16092e" flood-opacity="0.45"/>
+    </filter>
+  </defs>
+
+  <!-- background -->
+  <rect width="1280" height="640" fill="url(#bg)"/>
+
+  <!-- decorative blobs -->
+  <circle cx="1120" cy="120" r="230" fill="#ffffff" opacity="0.06" filter="url(#glow)"/>
+  <circle cx="60" cy="560" r="200" fill="#bdc3ff" opacity="0.10" filter="url(#glow)"/>
+  <circle cx="1260" cy="520" r="140" fill="#d6baff" opacity="0.12" filter="url(#glow)"/>
+
+  <!-- LEFT: branding -->
+  <g transform="translate(64,150)">
+    <!-- logo mark -->
+    <rect x="0" y="0" width="64" height="64" rx="18" fill="#ffffff" filter="url(#shadow)"/>
+    <text x="32" y="44" font-family="Arial,Helvetica,sans-serif" font-size="34" font-weight="800" fill="#3e4bbe" text-anchor="middle">DW</text>
+
+    <text x="0" y="110" font-family="Arial,Helvetica,sans-serif" font-size="52" font-weight="800" fill="#ffffff" letter-spacing="-0.5">DigitalWise</text>
+    <text x="0" y="148" font-family="Arial,Helvetica,sans-serif" font-size="21" fill="#d6baff" letter-spacing="0.5">Belajar · Main · Menang 🏆</text>
+
+    <text x="0" y="210" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="500" fill="#e9e7ef" opacity="0.95">
+      Gamifikasi literasi digital untuk membentengi remaja
+    </text>
+    <text x="0" y="236" font-family="Arial,Helvetica,sans-serif" font-size="18" font-weight="500" fill="#e9e7ef" opacity="0.95">
+      dari kejahatan siber di media sosial.
+    </text>
+
+    <!-- feature chips -->
+    <g transform="translate(0,278)" font-family="Arial,Helvetica,sans-serif" font-size="14.5" font-weight="600">
+      <g>
+        <rect width="150" height="40" rx="20" fill="#ffffff" opacity="0.14"/>
+        <text x="75" y="26" fill="#ffffff" text-anchor="middle">🎯 Misi &amp; Level</text>
+      </g>
+      <g transform="translate(162,0)">
+        <rect width="150" height="40" rx="20" fill="#ffffff" opacity="0.14"/>
+        <text x="75" y="26" fill="#ffffff" text-anchor="middle">🛡️ Anti-Phishing</text>
+      </g>
+      <g transform="translate(324,0)">
+        <rect width="150" height="40" rx="20" fill="#ffffff" opacity="0.14"/>
+        <text x="75" y="26" fill="#ffffff" text-anchor="middle">🏅 Badge &amp; XP</text>
+      </g>
+    </g>
+  </g>
+
+  <!-- PHONE mockups -->
+  <!-- Phone 1: Beranda -->
+  <g filter="url(#shadow)">
+    <g transform="translate(560,28)">
+      <rect width="300" height="610" rx="40" fill="#131318"/>
+      <rect x="6" y="6" width="288" height="598" rx="34" fill="url(#card)"/>
+      <!-- status bar -->
+      <text x="24" y="44" font-family="Arial" font-size="15" font-weight="700" fill="#2f3036">09:41</text>
+      <text x="276" y="44" font-family="Arial" font-size="15" font-weight="700" fill="#2f3036" text-anchor="end">▪▪▪</text>
+      <!-- header -->
+      <text x="24" y="84" font-family="Arial" font-size="22" font-weight="800" fill="#0e0e13">Halo, Rara 👋</text>
+      <text x="24" y="104" font-family="Arial" font-size="13" fill="#595d72">Ayo amankan duniamu digital</text>
+      <!-- XP card -->
+      <rect x="24" y="122" width="252" height="74" rx="18" fill="#dfe0ff"/>
+      <text x="40" y="150" font-family="Arial" font-size="14" font-weight="700" fill="#000f5c">Level 7 · Ombuds Digital</text>
+      <text x="40" y="170" font-family="Arial" font-size="12" fill="#3e4bbe" font-weight="600">240 / 300 XP</text>
+      <rect x="40" y="180" width="220" height="8" rx="4" fill="#ffffff"/>
+      <rect x="40" y="180" width="176" height="8" rx="4" fill="url(#xp)"/>
+      <!-- mission card 1 -->
+      <rect x="24" y="212" width="252" height="64" rx="16" fill="#ffffff"/>
+      <rect x="40" y="228" width="24" height="24" rx="8" fill="#eddbff"/>
+      <text x="52" y="245" font-family="Arial" font-size="13" text-anchor="middle">🛡</text>
+      <text x="76" y="240" font-family="Arial" font-size="14" font-weight="700" fill="#0e0e13">Deteksi Phishing</text>
+      <text x="76" y="258" font-family="Arial" font-size="12" fill="#595d72">+40 XP · 10 menit</text>
+      <text x="252" y="244" font-family="Arial" font-size="13" font-weight="800" fill="#744cb0" text-anchor="end">Mulai →</text>
+      <!-- mission card 2 -->
+      <rect x="24" y="288" width="252" height="64" rx="16" fill="#ffffff"/>
+      <rect x="40" y="304" width="24" height="24" rx="8" fill="#eddbff"/>
+      <text x="52" y="321" font-family="Arial" font-size="13" text-anchor="middle">🔐</text>
+      <text x="76" y="316" font-family="Arial" font-size="14" font-weight="700" fill="#0e0e13">Sandi Kuat</text>
+      <text x="76" y="334" font-family="Arial" font-size="12" fill="#595d72">+30 XP · Selesai ✓</text>
+      <text x="252" y="320" font-family="Arial" font-size="13" font-weight="800" fill="#1d6f3c" text-anchor="end">100%</text>
+      <!-- bottom nav -->
+      <g transform="translate(24,382)">
+        <text x="24" y="20" font-family="Arial" font-size="13" fill="#3e4bbe" font-weight="700" text-anchor="middle">●</text>
+        <text x="24" y="40" font-family="Arial" font-size="10" fill="#3e4bbe" text-anchor="middle">Beranda</text>
+        <text x="94" y="20" font-family="Arial" font-size="13" fill="#767680" text-anchor="middle">▢</text>
+        <text x="94" y="40" font-family="Arial" font-size="10" fill="#767680" text-anchor="middle">Misi</text>
+        <text x="164" y="20" font-family="Arial" font-size="13" fill="#767680" text-anchor="middle">▣</text>
+        <text x="164" y="40" font-family="Arial" font-size="10" fill="#767680" text-anchor="middle">Forum</text>
+        <text x="234" y="20" font-family="Arial" font-size="13" fill="#767680" text-anchor="middle">◉</text>
+        <text x="234" y="40" font-family="Arial" font-size="10" fill="#767680" text-anchor="middle">Profil</text>
+      </g>
+      <rect x="120" y="460" width="60" height="5" rx="2.5" fill="#8a8a94" opacity="0.6"/>
+    </g>
+  </g>
+
+  <!-- Phone 2: Phishing simulation -->
+  <g filter="url(#shadow)">
+    <g transform="translate(900,28)">
+      <rect width="300" height="610" rx="40" fill="#131318"/>
+      <rect x="6" y="6" width="288" height="598" rx="34" fill="#fbf8fe"/>
+      <text x="24" y="44" font-family="Arial" font-size="15" font-weight="700" fill="#2f3036">09:41</text>
+      <text x="24" y="84" font-family="Arial" font-size="20" font-weight="800" fill="#0e0e13">Simulasi Phishing</text>
+      <!-- email card -->
+      <rect x="24" y="104" width="252" height="150" rx="16" fill="#ffffff"/>
+      <rect x="40" y="122" width="22" height="22" rx="11" fill="#b3261e"/>
+      <text x="97" y="138" font-family="Arial" font-size="14" font-weight="700" fill="#0e0e13">Menang Rp 5 Juta!</text>
+      <text x="40" y="160" font-family="Arial" font-size="12" fill="#595d72">dari bank-anda-pokok.com</text>
+      <text x="40" y="184" font-family="Arial" font-size="12.5" fill="#2f3036">“Anda memenangkan hadiah. Klik tautan dan masukkan nomor rekening Anda sekarang.”</text>
+      <rect x="40" y="210" width="120" height="28" rx="8" fill="#eeeeff"/>
+      <text x="100" y="229" font-family="Arial" font-size="12" fill="#3e4bbe" text-anchor="middle" font-weight="700">klik disini</text>
+      <!-- verdict -->
+      <rect x="24" y="268" width="252" height="66" rx="16" fill="#f9dedc"/>
+      <text x="40" y="294" font-family="Arial" font-size="14" font-weight="800" fill="#b3261e">⚠️ Ini jebakan phishing!</text>
+      <text x="40" y="314" font-family="Arial" font-size="12" fill="#410e0b">Jangan klik · Laporkan sekarang</text>
+      <!-- action buttons -->
+      <rect x="24" y="350" width="252" height="48" rx="14" fill="#3e4bbe"/>
+      <text x="150" y="380" font-family="Arial" font-size="15" font-weight="700" fill="#ffffff" text-anchor="middle">🚩 Laporkan &amp; Blokir</text>
+      <rect x="24" y="408" width="252" height="48" rx="14" fill="#ffffff" stroke="#3e4bbe" stroke-width="2"/>
+      <text x="150" y="438" font-family="Arial" font-size="15" font-weight="700" fill="#3e4bbe" text-anchor="middle">Saya Yakin Ini Aman</text>
+      <!-- tip -->
+      <rect x="24" y="476" width="252" height="70" rx="16" fill="#eddbff"/>
+      <text x="40" y="502" font-family="Arial" font-size="13" font-weight="700" fill="#2b0a57">💡 Tips Cepat</text>
+      <text x="40" y="522" font-family="Arial" font-size="11.5" fill="#2b0a57">Cek alamat pengirim &amp; jangan pernah</text>
+      <text x="40" y="537" font-family="Arial" font-size="11.5" fill="#2b0a57">bagikan kode OTP ke siapa pun.</text>
+      <rect x="120" y="580" width="60" height="5" rx="2.5" fill="#8a8a94" opacity="0.6"/>
+    </g>
+  </g>
+</svg>
