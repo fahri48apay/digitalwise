@@ -10,6 +10,8 @@ import Materials from './pages/Materials';
 import Forum from './pages/Forum';
 import Reports from './pages/Reports';
 import Settings from './pages/Settings';
+import Appearance from './pages/Appearance';
+import Notifications from './pages/Notifications';
 import Login from './pages/Login';
 
 const queryClient = new QueryClient();
@@ -42,6 +44,8 @@ function App() {
             <Route path="/materials" element={<Materials />} />
             <Route path="/forum" element={<Forum />} />
             <Route path="/reports" element={<Reports />} />
+            <Route path="/settings/appearance" element={<Appearance />} />
+            <Route path="/settings/notifications" element={<Notifications />} />
             <Route path="/settings" element={<Settings />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>

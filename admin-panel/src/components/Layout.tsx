@@ -8,7 +8,9 @@ import {
   ChatBubbleLeftIcon, 
   ExclamationTriangleIcon,
   Cog6ToothIcon,
-  ArrowLeftOnRectangleIcon
+  ArrowLeftOnRectangleIcon,
+  MoonStarsIcon,
+  BellIcon
 } from '@heroicons/react/24/outline';
 
 const navigation = [
@@ -18,7 +20,9 @@ const navigation = [
   { name: 'Materi', href: '/materials', icon: BookOpenIcon },
   { name: 'Forum', href: '/forum', icon: ChatBubbleLeftIcon },
   { name: 'Laporan', href: '/reports', icon: ExclamationTriangleIcon },
-  { name: 'Pengaturan', href: '/settings', icon: Cog6ToothIcon },
+  { name: 'Pengaturan Umum', href: '/settings', icon: Cog6ToothIcon },
+  { name: 'Tampilan', href: '/settings/appearance', icon: MoonStarsIcon },
+  { name: 'Notifikasi', href: '/settings/notifications', icon: BellIcon },
 ];
 
 interface LayoutProps {
